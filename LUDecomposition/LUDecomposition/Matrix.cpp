@@ -44,12 +44,12 @@ void BuildLU(int& N, real *DI, real *AL, real *AU, int *IA)
 {
 	for (int i = 0; i < N; i++)
 	{
-		real sumL = 0, sumU = 0, sumD = 0;					// Суммы для вычисления элементов массивов AL, AU и D
+		real sumL = 0, sumU = 0, sumD = 0;					// Sums for calculating elements of arrays AL, AU and D
 		int j = i - (IA[i + 1] - IA[i]);
 
 		for (int k = IA[i]; k < IA[i + 1]; k++)
 		{
-			// Вычисление L[i][j] и U[j][i]
+			// Calculation L[i][j] and U[j][i]
 			for (int m = 0; m < k - IA[i]; m++)
 			{
 				sumL += AL[IA[i] + m] * AU[IA[j] + m];
@@ -60,14 +60,14 @@ void BuildLU(int& N, real *DI, real *AL, real *AU, int *IA)
 			AU[k] -= sumU;
 			AU[k] /= DI[j];
 
-			// Накопление суммы для DI[i]
+			// Accumulation of sum for DI[i]
 			sumD += AL[k] * AU[k];
 
 			sumL = sumU = 0;
 			j++;
 		}
 
-		// Вычисление DI[i]
+		// Calculation DI[i]
 		DI[i] -= sumD;
 		sumD = 0;
 	}
@@ -76,34 +76,35 @@ void BuildLU(int& N, real *DI, real *AL, real *AU, int *IA)
 void Compute(int& N, real* DI, real* AL, real* AU, int* IA, real* b)
 {
 	real *y = b, *x = b;
-	// Решение Ly = b прямым обходом
+
+	// Solution of Ly = b by direct bypass
 	for (int i = 0; i < N; i++)
 	{
 		real sumL = 0;
-		for (int k = 1; k < IA[i + 1] - IA[i] + 1; k++)
-			sumL += AL[IA[i + 1] - k] * y[i - k];
+		int m = i - 1;
+
+		for (int k = IA[i + 1] - 1; k >= IA[i]; k--)
+		{
+			sumL += AL[k] * y[m];
+			m--;
+		}
+		
 		y[i] = (b[i] - sumL) / DI[i];
 	}
 
-	// Решение Ux = y обратным обходом
-	for (int i = N - 1; i >= 0; i--)
+	// Solution of Ux = y by reverse bypass
+	for (int i = N - 1; i > 0; i--)
 	{
-		real sumU = 0;
-		int height = 1;
-
-		for (int k = i + 1; k < N; k++)
+		int m = i - 1;
+		for (int k = IA[i + 1] - 1; k >= IA[i]; k--)
 		{
-			if (IA[k + 1] - IA[k] >= height)
-				sumU += x[k] * AU[IA[k + 1] - height];
-
-			height++;
+			x[m] = y[m] - AU[k] * x[i];
+			m--;
 		}
-
-		x[i] = y[i] - sumU;
 	}
 }
 
-void Print(int& N, int& ALSize, real *DI, real *AL, real *AU, real *x)
+void Output(int& N, int& ALSize, real *DI, real *AL, real *AU, real *x)
 {
 	cout << "DI: ";
 	for (int i = 0; i < N; i++)

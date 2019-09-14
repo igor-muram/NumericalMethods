@@ -17,7 +17,7 @@ int main()
 	Input(N, ALSize, DI, AL, AU, b, IA);
 	BuildLU(N, DI, AL, AU, IA);
 	Compute(N, DI, AL, AU, IA, b);
-	Print(N, ALSize, DI, AL, AU, b);
+	Output(N, ALSize, DI, AL, AU, b);
 
 	system("pause");
 	return 0;

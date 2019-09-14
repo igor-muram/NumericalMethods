@@ -5,12 +5,8 @@
 
 typedef float real;
 
-void InputSize(int&, int&);														// Ввод размера матриц A, AL, AU
-
-void Input(int&, int&, real *, real *, real *, real *, int *);					// Ввод матрицы A в профильном формате
-
-void BuildLU(int&, real *, real *, real *, int *);								// LU-разложение
-
-void Compute(int&, real *, real *, real *, int *, real *);						// Решение СЛАУ
-
-void Print(int&, int&, real *, real *, real *, real *);							// Вывод матриц L и U в профильном формате, вывод вектора x
+void InputSize(int&, int&);													// Entering A, AL, AU dimensions
+void Input(int&, int&, real *, real *, real *, real *, int *);					// Entering matrix A in profile format
+void BuildLU(int&, real *, real *, real *, int *);								// LU-decomposition
+void Compute(int&, real *, real *, real *, int *, real *);						// Solution of a system of linear equations
+void Output(int&, int&, real *, real *, real *, real *);						// The output of the matrices L and U in the profile format, the output of the vector x
