@@ -44,16 +44,26 @@ void BuildLU(int& N, real *DI, real *AL, real *AU, int *IA)
 {
 	for (int i = 0; i < N; i++)
 	{
-		real sumL = 0, sumU = 0, sumD = 0;					// Sums for calculating elements of arrays AL, AU and D
-		int j = i - (IA[i + 1] - IA[i]);
+		realScal sumD = 0;										// Sum for calculating elements of array D
+		int i0 = IA[i], i1 = IA[i + 1];
+		int j = i - (i1 - i0);
 
-		for (int k = IA[i]; k < IA[i + 1]; k++)
+		for (int k = i0; k < i1; k++, j++)
 		{
-			// Calculation L[i][j] and U[j][i]
-			for (int m = 0; m < k - IA[i]; m++)
+			realScal sumL = 0, sumU = 0;						// Sums for calculating elements of arrays AL and AU
+
+			// Calculation elements L[i][j] and U[j][i]
+			int j0 = IA[j], j1 = IA[j + 1];
+			int size_i = k - i0, size_j = j1 - j0;
+			int diff = size_i - size_j;
+			int kl = i0, ku = j0;
+
+			(diff < 0) ? ku -= diff : kl += diff;
+
+			for (; kl < k; kl++, ku++)
 			{
-				sumL += AL[IA[i] + m] * AU[IA[j] + m];
-				sumU += AU[IA[i] + m] * AL[IA[j] + m];
+				sumL += AL[kl] * AU[ku];
+				sumU += AU[kl] * AL[ku];
 			}
 
 			AL[k] -= sumL;
@@ -62,9 +72,6 @@ void BuildLU(int& N, real *DI, real *AL, real *AU, int *IA)
 
 			// Accumulation of sum for DI[i]
 			sumD += AL[k] * AU[k];
-
-			sumL = sumU = 0;
-			j++;
 		}
 
 		// Calculation DI[i]
@@ -80,27 +87,22 @@ void Compute(int& N, real* DI, real* AL, real* AU, int* IA, real* b)
 	// Solution of Ly = b by direct bypass
 	for (int i = 0; i < N; i++)
 	{
-		real sumL = 0;
-		int m = i - 1;
+		realScal sumL = 0;
+		int j = i - 1;
 
-		for (int k = IA[i + 1] - 1; k >= IA[i]; k--)
-		{
-			sumL += AL[k] * y[m];
-			m--;
-		}
+		for (int k = IA[i + 1] - 1; k >= IA[i]; k--, j--)
+			sumL += AL[k] * y[j];
 		
 		y[i] = (b[i] - sumL) / DI[i];
 	}
 
 	// Solution of Ux = y by reverse bypass
-	for (int i = N - 1; i > 0; i--)
+	for (int i = N - 1; i >= 0; i--)
 	{
-		int m = i - 1;
-		for (int k = IA[i + 1] - 1; k >= IA[i]; k--)
-		{
-			x[m] = y[m] - AU[k] * x[i];
-			m--;
-		}
+		int j = i - 1;
+		x[i] = y[i];
+		for (int k = IA[i + 1] - 1; k >= IA[i]; k--, j--)
+			y[j] -= AU[k] * x[i];
 	}
 }
 

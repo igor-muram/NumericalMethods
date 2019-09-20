@@ -1,7 +1,5 @@
 #include "Matrix.h"
 
-typedef float real;
-
 int main()
 {
 	int N = 0, ALSize = 0;
