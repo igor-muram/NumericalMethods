@@ -3,8 +3,8 @@
 #include <fstream>
 #include <iostream>
 
-typedef float real;
-typedef float realScal;
+typedef double real;
+typedef double realScal;
 
 void InputSize(int&, int&);													// Entering A, AL, AU dimensions
 void Input(int&, int&, real *, real *, real *, real *, int *);					// Entering matrix A in profile format

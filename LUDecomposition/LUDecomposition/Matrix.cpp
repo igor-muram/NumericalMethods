@@ -123,8 +123,13 @@ void Output(int& N, int& ALSize, real *DI, real *AL, real *AU, real *x)
 		cout << AU[i] << ' ';
 	cout << endl << endl;
 
-	cout << "x: ";
+	cout << "x: " << endl;
 	for (int i = 0; i < N; i++)
-		cout << x[i] << ' ';
+		cout << scientific << x[i] << endl;
+	cout << endl << endl;
+
+	cout << "x* - x: " << endl;
+	for (int i = 0; i < N; i++)
+		cout << scientific << i + 1 - x[i] << endl;
 	cout << endl << endl;
 }
