@@ -130,9 +130,10 @@
     <ClInclude Include="Matrix.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="input\b.txt" />
+    <Text Include="input\f.txt" />
     <Text Include="input\matrix.txt" />
     <Text Include="input\size.txt" />
+    <Text Include="input\x0.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
