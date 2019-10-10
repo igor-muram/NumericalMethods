@@ -5,4 +5,4 @@ Hilbert matrix generator of any dimension.
 Convert of matrix from profile format to tight format.
 Multiplication matrix by vector in a profile format.
 The matrix of coefficients is stored in a profile format. 
-The result of the work are the matrices L and U in the profile format and the vector x (vector of unknowns).
+The result are the matrices L and U in the profile format and the vector x (vector of unknowns).
