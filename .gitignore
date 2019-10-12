@@ -5,3 +5,12 @@ IterativeMethods/.vs/IterativeMethods/v16/.suo
 IterativeMethods/.vs/IterativeMethods/v16/Browse.VC.db
 *.ipch
 *.opendb
+IterativeMethods/Debug/IterativeMethods.ilk
+IterativeMethods/Debug/IterativeMethods.pdb
+IterativeMethods/IterativeMethods/Debug/IterativeMethods.log
+IterativeMethods/IterativeMethods/Debug/IterativeMethods.tlog/CL.read.1.tlog
+*.tlog
+*.idb
+*.pdb
+*.obj
+*.exe

@@ -8,7 +8,7 @@ using namespace std;
 typedef double real;
 
 const int maxiter = 50000;
-const real eps = 1e-43;
+const real eps = 1e-12;
 
 struct Matrix
 {
