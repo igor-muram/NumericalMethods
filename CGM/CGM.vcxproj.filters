@@ -61,5 +61,6 @@
     <Text Include="input\pr.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
+    <Text Include="input\x0.txt" />
   </ItemGroup>
 </Project>

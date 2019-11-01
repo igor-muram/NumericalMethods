@@ -11,32 +11,27 @@ int main()
 	ReadMatrix(A, maxiter, eps);
 
 	double* f = new double[A.N];
-
-	double* x0 = new double[A.N];
-	for (int i = 0; i < A.N; i++)
-		x0[i] = 0;
-
 	double* r = new double[A.N];
 	double* z = new double[A.N];
+	double* Ax = new double[A.N];
+	double* p = new double[A.N];
 
 	double* x = new double[A.N];
 	for (int i = 0; i < A.N; i++)
 		x[i] = 1;
 
 	Multiply(A, x, f);
+	for (int i = 0; i < A.N; i++)
+		x[i] = 0;
 
-	double* p = new double[A.N];
-	int iter = LOS(A, x0, f, r, z, p, maxiter, eps, x);
+	int iter = LOS(A, x, f, r, z, p, Ax, maxiter, eps);
 
 	std::cout << "Number of iterations (LOS): " << iter << std::endl;
 	for (int i = 0; i < A.N; i++)
 		std::cout << x[i] << " ";
 	std::cout << std::endl << std::endl;
 
-	iter = CGM(A, x0, f, r, z, maxiter, eps, x);
-
-	for (int i = 0; i < A.N; i++)
-		x0[i] = 0;
+	iter = CGM(A, x, f, r, z, Ax, maxiter, eps);
 
 	std::cout << "Number of iterations (CGM): " << iter << std::endl;
 	for (int i = 0; i < A.N; i++)

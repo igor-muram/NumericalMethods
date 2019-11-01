@@ -1,3 +1,3 @@
 #include "../Matrix/matrix.h"
 
-int LOS(Matrix& A, double* x0, double* f, double* r, double* z, double* p, int maxiter, double eps, double* x);
+int LOS(Matrix& A, double* x, double* f, double* r, double* z, double* p, double* Ax, int maxiter, double eps);

@@ -141,6 +141,7 @@
     <Text Include="input\jg.txt" />
     <Text Include="input\kuslau.txt" />
     <Text Include="input\pr.txt" />
+    <Text Include="input\x0.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

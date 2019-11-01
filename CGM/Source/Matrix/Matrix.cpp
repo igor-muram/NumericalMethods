@@ -1,4 +1,4 @@
-#include "Matrix.h"
+#include "Matrix.h"					
 
 void ReadMatrix(Matrix& A, int& Aaxiter, double& eps)
 {
@@ -48,18 +48,37 @@ void ReadB(int N, double* b)
 	in.close();
 }
 
+void ReadX0(int N, double* x0)
+{
+	std::ifstream in("x0.txt");
+
+	int i = 0;
+	for (; in >> x0[i] && i < N; i++) {}
+
+	for (; i < N; i++)
+		x0[i] = 0;
+}
+
 void Multiply(Matrix& A, double* vec, double* res)
 {
-	for (int i = 0; i < A.N; i++)
-		res[i] = vec[i] * A.DI[i];
+	double* di = A.DI;
+	double* al = A.AL;
+	double* au = A.AU;
+	int* ia = A.IA;
+	int* ja = A.JA;
+	int N = A.N;
 
-	for (int i = 0; i < A.N; i++)
+	for (int i = 0; i < N; i++)
+		res[i] = vec[i] * di[i];
+
+	for (int i = 0; i < N; i++)
 	{
-		for (int j = A.IA[i]; j < A.IA[i + 1]; j++)
+		res[i] = vec[i] * di[i];
+		for (int k = ia[i]; k < ia[i + 1]; k++)
 		{
-			int col = A.JA[j];
-			res[i] += A.AL[j] * vec[col];
-			res[col] += A.AU[j] * vec[i];
+			int j = ja[k];
+			res[i] += al[k] * vec[j];
+			res[j] += au[k] * vec[i];
 		}
 	}
 }

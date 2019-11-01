@@ -1,19 +1,15 @@
 #include "los.h"
 
-int LOS(Matrix& A, double* x0, double* f, double* r, double* z, double* p, int maxiter, double eps, double* x)
+int LOS(Matrix& A, double* x, double* f, double* r, double* z, double* p, double* Ax, int maxiter, double eps)
 {
-	// Copy x0 to x
-	for (int i = 0; i < A.N; i++)
-		x[i] = x0[i];
+	// Ax = A * x
+	Multiply(A, x, Ax);
 
-	// x0 = A * x0
-	Multiply(A, x0, x0);
-
-	// r0 = f - x0
+	// r0 = f - Ax
 	// z0 = r0
 	for (int i = 0; i < A.N; i++)
 	{
-		r[i] = f[i] - x0[i];
+		r[i] = f[i] - Ax[i];
 		z[i] = r[i];
 	}
 
@@ -22,6 +18,7 @@ int LOS(Matrix& A, double* x0, double* f, double* r, double* z, double* p, int m
 
 	double diff = DotProduct(A.N, r, r);
 	int k = 0;
+
 	for (; k < maxiter && diff >= eps; k++)
 	{
 		double dotP = DotProduct(A.N, p, p);
@@ -33,13 +30,13 @@ int LOS(Matrix& A, double* x0, double* f, double* r, double* z, double* p, int m
 			r[i] -= ak * p[i];
 		}
 
-		Multiply(A, r, x0);
-		double bk = -DotProduct(A.N, p, x0) / dotP;
+		Multiply(A, r, Ax);
+		double bk = -DotProduct(A.N, p, Ax) / dotP;
 
 		for (int i = 0; i < A.N; i++)
 		{
 			z[i] = r[i] + bk * z[i];
-			p[i] = x0[i] + bk * p[i];
+			p[i] = Ax[i] + bk * p[i];
 		}
 
 		diff = DotProduct(A.N, r, r);

@@ -1,37 +1,32 @@
 #include "cgm.h"
 
-int CGM(Matrix& A, double* x0, double* f, double* r, double* z, int maxiter, double eps, double* x)
+int CGM(Matrix& A, double* x, double* f, double* r, double* z, double* Ax, int maxiter, double eps)
 {
-	// Copy x0 to x
-	for (int i = 0; i < A.N; i++)
-		x[i] = x0[i];
+	// Ax = A * x0
+	Multiply(A, x, Ax);
 
-	// x0 = A * x0
-	Multiply(A, x0, x0);
-
-	// r0 = f - x0
+	// r0 = f - Ax
 	// z0 = r0
 	for (int i = 0; i < A.N; i++)
 	{
-		r[i] = f[i] - x0[i];
+		r[i] = f[i] - Ax[i];
 		z[i] = r[i];
 	}
 
 	double dotF = DotProduct(A.N, f, f);
-	double diff = DotProduct(A.N, r, r) / dotF;
+	double dotR0 = DotProduct(A.N, r, r);
+	double diff = dotR0 / dotF;
 
 	int k = 0;
 	for (; k < maxiter && diff >= eps * eps; k++)
 	{
-		// x0 = A * z(k - 1)
-		Multiply(A, z, x0);
-		double dotR0 = DotProduct(A.N, r, r);
-		double ak = dotR0 / DotProduct(A.N, x0, z);
+		Multiply(A, z, Ax);
+		double ak = dotR0 / DotProduct(A.N, Ax, z);
 
 		for (int i = 0; i < A.N; i++)
 		{
 			x[i] += ak * z[i];
-			r[i] -= ak * x0[i];
+			r[i] -= ak * Ax[i];
 		}
 
 		double dotR1 = DotProduct(A.N, r, r);
@@ -41,6 +36,8 @@ int CGM(Matrix& A, double* x0, double* f, double* r, double* z, int maxiter, dou
 			z[i] = r[i] + bk * z[i];
 
 		diff = dotR1 / dotF;
+
+		dotR0 = dotR1;
 	}
 
 	return k;
