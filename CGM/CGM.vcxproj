@@ -132,6 +132,7 @@
     <ClInclude Include="Source\CGM\cgm.h" />
     <ClInclude Include="Source\LOS\los.h" />
     <ClInclude Include="Source\Matrix\matrix.h" />
+    <ClInclude Include="Source\Memory\memory.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input\di.txt" />
@@ -141,7 +142,6 @@
     <Text Include="input\jg.txt" />
     <Text Include="input\kuslau.txt" />
     <Text Include="input\pr.txt" />
-    <Text Include="input\x0.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

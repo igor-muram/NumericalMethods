@@ -38,6 +38,9 @@
     <ClInclude Include="Source\Matrix\matrix.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Memory\memory.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="input\di.txt">
@@ -61,6 +64,5 @@
     <Text Include="input\pr.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
-    <Text Include="input\x0.txt" />
   </ItemGroup>
 </Project>
