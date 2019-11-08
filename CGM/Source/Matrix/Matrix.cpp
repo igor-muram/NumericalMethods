@@ -2,7 +2,7 @@
 
 void ReadMatrix(Matrix& A, int& Aaxiter, double& eps, int& choice)
 {
-	ifstream in("input/kuslau.txt");
+	std::ifstream in("input/kuslau.txt");
 	in >> A.N >> Aaxiter >> eps >> choice;
 	in.close();
 
@@ -40,32 +40,32 @@ void ReadMatrix(Matrix& A, int& Aaxiter, double& eps, int& choice)
 	in.close();
 }
 
-void ReadB(int N, double *b)
+void ReadB(int N, double* b)
 {
-	ifstream in("input/pr.txt");
+	std::ifstream in("input/pr.txt");
 	for (int i = 0; i < N; i++)
 		in >> b[i];
 	in.close();
 }
 
-void ReadX0(int N, double *x0)
+void ReadX0(int N, double* x0)
 {
-	ifstream in("x0.txt");
+	std::ifstream in("x0.txt");
 
 	int i = 0;
-	for (; in >> x0[i] && i < N; i++);
+	for (; in >> x0[i] && i < N; i++) {}
 
 	for (; i < N; i++)
 		x0[i] = 0;
 }
 
-void Multiply(Matrix& A, double *vec, double *res)
+void Multiply(Matrix& A, double* vec, double* res)
 {
-	double *di = A.DI;
-	double *al = A.AL;
-	double *au = A.AU;
-	int *ia = A.IA;
-	int *ja = A.JA;
+	double* di = A.DI;
+	double* al = A.AL;
+	double* au = A.AU;
+	int* ia = A.IA;
+	int* ja = A.JA;
 	int N = A.N;
 
 	for (int i = 0; i < N; i++)
@@ -80,13 +80,13 @@ void Multiply(Matrix& A, double *vec, double *res)
 	}
 }
 
-void MultiplyT(Matrix& A, double *vec, double *res)
+void MultiplyT(Matrix& A, double* vec, double* res)
 {
-	double *di = A.DI;
-	double *al = A.AU;
-	double *au = A.AL;
-	int *ia = A.IA;
-	int *ja = A.JA;
+	double* di = A.DI;
+	double* al = A.AU;
+	double* au = A.AL;
+	int* ia = A.IA;
+	int* ja = A.JA;
 	int N = A.N;
 
 	for (int i = 0; i < N; i++)
@@ -146,9 +146,10 @@ void LUFactorization(Matrix& A, Matrix& LU)
 		LU.DI[i] = A.DI[i] - sumD;
 		sumD = 0;
 	}
+
 }
 
-double DotProduct(int N, double *a, double *b)
+double DotProduct(int N, double* a, double* b)
 {
 	double sum = 0;
 	for (int i = 0; i < N; i++)

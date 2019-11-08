@@ -132,7 +132,6 @@
     <ClInclude Include="Source\CGM\cgm.h" />
     <ClInclude Include="Source\LOS\los.h" />
     <ClInclude Include="Source\Matrix\matrix.h" />
-    <ClInclude Include="Source\Memory\memory.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input\di.txt" />
