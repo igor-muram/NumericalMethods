@@ -21,10 +21,14 @@ struct AuxVectors
 	double* temp = nullptr;
 };
 
-void ReadMatrix(Matrix& A, int& Aaxiter, double& eps, int& choice);
+void ReadMatrix(Matrix& A, int& maxiter, double& eps, int& choice);
 void ReadX0(int N, double* x0);
 void ReadB(int N, double* b);
 void Multiply(Matrix& A, double* vec, double* res);
 void MultiplyT(Matrix& A, double* vec, double* res);
+void MultiplyU(Matrix& A, double* vec, double* res);
 void LUFactorization(Matrix& A, Matrix& LU);
+void Forward(Matrix& A, double* y, double* b, bool transposed);
+void Backward(Matrix& A, double* y, double* b, bool transposed);
 double DotProduct(int N, double* a, double* b);
+Matrix HilbertMatrix(int size);

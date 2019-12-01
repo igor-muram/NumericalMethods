@@ -1,6 +1,6 @@
 #include "cgm.h"
 
-int CGM(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps)
+int CGM(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps, double& lastdiff)
 {
 	double* Ax = aux.Ax;
 	double* r = aux.r;
@@ -45,11 +45,11 @@ int CGM(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double ep
 		diff = dotR1 / dotF;
 		dotR0 = dotR1;
 	}
-
+	lastdiff = diff;
 	return k;
 }
 
-int CGM_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps)
+int CGM_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps, double& lastdiff)
 {
 	double* Ax = aux.Ax;
 	double* r = aux.r;
@@ -123,10 +123,11 @@ int CGM_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	for (int i = 0; i < N; i++)
 		x[i] /= LU[i];
 
+	lastdiff = diff;
 	return k;
 }
 
-int CGM_diag2(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps)
+int CGM_diag2(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps, double& lastdiff)
 {
 	double* Ax = aux.Ax;
 	double* r = aux.r;
@@ -184,10 +185,11 @@ int CGM_diag2(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 		dotR0 = dotR1;
 	}
 
+	lastdiff = diff;
 	return k;
 }
 
-int CGM_diag3(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps)
+int CGM_diag3(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double eps, double& lastdiff)
 {
 	double* Ax = aux.Ax;
 	double* r = aux.r;
@@ -257,6 +259,77 @@ int CGM_diag3(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	// Calculate final x
 	for (int i = 0; i < N; i++)
 		x[i] /= LU[i];
+	
+	lastdiff = diff;
+	return k;
+}
 
+int CGM_LU(Matrix& A, double* x, double* f, Matrix& LU, AuxVectors& aux, int maxiter, double eps, double& lastdiff)
+{
+	double* Ax = aux.Ax;
+	double* r = aux.r;
+	double* z = aux.z;
+	double* temp = aux.temp;
+	int N = A.N;
+
+	// Calculate r0
+	Multiply(A, x, Ax);
+	for (int i = 0; i < N; i++)
+		r[i] = f[i] - Ax[i];
+
+	Forward(LU, r, r, false);
+	Forward(LU, r, r, true);
+	MultiplyT(A, r, temp);	
+	Backward(LU, r, temp, true);
+
+	// Calculate z0
+	for (int i = 0; i < N; i++)
+		z[i] = r[i];
+
+	//Calculate x0
+	MultiplyU(LU, x, temp);
+	for (int i = 0; i < N; i++)
+		x[i] = temp[i];
+
+	double dotF = DotProduct(N, f, f);
+	double dotR0 = DotProduct(N, r, r);
+	double diff = dotR0 / dotF;
+
+	int k = 0;
+	for (; k < maxiter && diff >= eps * eps; k++)
+	{
+		// Calculate alpha
+		Backward(LU, Ax, z, false);
+		Multiply(A, Ax, temp);
+		Forward(LU, temp, temp, false);
+		Forward(LU, temp, temp, true);
+		MultiplyT(A, temp, Ax);
+		Backward(LU, Ax, Ax, true);
+		double a = dotR0 / DotProduct(N, Ax, z);
+
+		// Calculate xk, rk
+		for (int i = 0; i < N; i++)
+		{
+			x[i] += a * z[i];
+			r[i] -= a * Ax[i];
+		}
+
+		// Calculate beta
+		double dotR1 = DotProduct(N, r, r);
+		double b = dotR1 / dotR0;
+
+		// Calculate zk
+		for (int i = 0; i < N; i++)
+			z[i] = r[i] + b * z[i];
+
+		// Calculate difference
+		diff = dotR1 / dotF;
+		dotR0 = dotR1;
+	}
+
+	// Calculate final x
+	Backward(LU, x, x, false);
+
+	lastdiff = diff;
 	return k;
 }
