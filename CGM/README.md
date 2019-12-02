@@ -6,4 +6,5 @@ Hilbert matrix generator of any dimension in sparse format.
 Implemented three types of diagonal preconditioning for the coefficient matrix for CGM and LOS.
 Implemented LU preconditioning of the coefficient matrix for CGM and LOS.
 The matrix of coefficients is stored in a sparse row-column format.
-The result is a vector x (vector of unknowns), calculated by two methods.
+The result is the vector x (vector of unknowns), calculated by one of two methods. 
+The selection of the preconditioning of the coefficient matrix is ​​carried out in the kuslau file.
