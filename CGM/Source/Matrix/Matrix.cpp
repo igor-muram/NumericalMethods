@@ -162,8 +162,8 @@ void LUFactorization(Matrix& A, Matrix& LU)
 
 				if (j_kl == j_ku)
 				{
-					sumL += A.AL[kl] * A.AU[ku];
-					sumU += A.AU[kl] * A.AL[ku];
+					sumL += LU.AL[kl] * LU.AU[ku];
+					sumU += LU.AU[kl] * LU.AL[ku];
 					kl++;
 					ku++;
 				}
@@ -175,15 +175,14 @@ void LUFactorization(Matrix& A, Matrix& LU)
 
 			LU.AL[k] = A.AL[k] - sumL;
 			LU.AU[k] = A.AU[k] - sumU;
-			LU.AU[k] /= A.DI[j];
+			LU.AU[k] /= LU.DI[j];
 
 			// Calculate sum for DI[i]
-			sumD += A.AL[k] * A.AU[k];
+			sumD += LU.AL[k] * LU.AU[k];
 		}
 
 		// Calculate DI[i]
 		LU.DI[i] = A.DI[i] - sumD;
-		sumD = 0;
 	}
 
 }

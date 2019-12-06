@@ -45,7 +45,7 @@ int CGM(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double ep
 		diff = dotR1 / dotF;
 		dotR0 = dotR1;
 	}
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -59,16 +59,16 @@ int CGM_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	int N = A.N;
 
 	for (int i = 0; i < N; i++)
-		LU[i] = sqrt(A.DI[i]);
+		LU[i] = 1.0 / sqrt(A.DI[i]);
 
 	// Calculate r0
 	Multiply(A, x, Ax);
 	for (int i = 0; i < N; i++)
-		r[i] = (f[i] - Ax[i]) / (LU[i] * LU[i]);
+		r[i] = (f[i] - Ax[i]) * LU[i] * LU[i];
 
 	MultiplyT(A, r, temp);
 	for (int i = 0; i < N; i++)
-		r[i] = temp[i] / LU[i];
+		r[i] = temp[i] * LU[i];
 
 	// Calculate z0
 	for (int i = 0; i < N; i++)
@@ -76,7 +76,7 @@ int CGM_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 
 	//Calculate x0
 	for (int i = 0; i < N; i++)
-		x[i] *= LU[i];
+		x[i] /= LU[i];
 
 	double dotF = DotProduct(N, f, f);
 	double dotR0 = DotProduct(N, r, r);
@@ -87,15 +87,15 @@ int CGM_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	{
 		// Calculate alpha
 		for (int i = 0; i < N; i++)
-			Ax[i] = z[i] / LU[i];
+			Ax[i] = z[i] * LU[i];
 
 		Multiply(A, Ax, temp);
 		for (int i = 0; i < N; i++)
-			Ax[i] = temp[i] / (LU[i] * LU[i]);
+			Ax[i] = temp[i] * LU[i] * LU[i];
 
 		MultiplyT(A, Ax, temp);
 		for (int i = 0; i < N; i++)
-			Ax[i] = temp[i] / LU[i];
+			Ax[i] = temp[i] * LU[i];
 
 		double a = dotR0 / DotProduct(N, Ax, z);
 
@@ -121,9 +121,9 @@ int CGM_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 
 	// Calculate final x
 	for (int i = 0; i < N; i++)
-		x[i] /= LU[i];
+		x[i] *= LU[i];
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -185,7 +185,7 @@ int CGM_diag2(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 		dotR0 = dotR1;
 	}
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -260,7 +260,7 @@ int CGM_diag3(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	for (int i = 0; i < N; i++)
 		x[i] /= LU[i];
 	
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -330,6 +330,6 @@ int CGM_LU(Matrix& A, double* x, double* f, Matrix& LU, AuxVectors& aux, int max
 	// Calculate final x
 	Backward(LU, x, x, false);
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }

@@ -2,23 +2,23 @@
 #include "CGM/cgm.h"
 #include "LOS/los.h"
 #include <cstdio>
+#include <ctime>
 
 int main()
 {
 	Matrix A = { };
 	Matrix LU = { };
 	AuxVectors aux = { };
-	int maxiter, choice;
+	int maxiter = 100000, choice = 11;
 	double eps;
 	ReadMatrix(A, maxiter, eps, choice);
+	//A = HilbertMatrix(40);
 
 	double* f = new double[A.N];
 	double* x = new double[A.N];
-
+	
 	for (int i = 0; i < A.N; i++)
-	{
 		x[i] = i + 1;
-	}
 
 	Multiply(A, x, f);
 	ReadX0(A.N, x);
@@ -29,7 +29,10 @@ int main()
 	
 	int iter = 0;
 	double lastdiff = 0;
+	double norm_f = sqrt(DotProduct(A.N, f, f));
 
+	clock_t start_time, end_time;
+	start_time = clock();
 	switch (choice)
 	{
 	case 11:
@@ -95,13 +98,31 @@ int main()
 	default:
 		printf_s("ERROR! Method is not specified.");
 	}
+	end_time = clock();
 
+	printf_s("time: %.3f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
 	printf_s("iteration count: %d\n", iter);
-	printf_s("difference: %e\n", lastdiff);
+	printf_s("iterative difference: %e\n", lastdiff);
 	for (int i = 0; i < A.N; i++)
 		printf_s("%.15f\n", x[i]);
 
-	printf_s("\n\n");
+	printf_s("\n");
+
+	// Real difference
+	double* r = new double[A.N];
+	for (int i = 0; i < A.N; i++)
+		r[i] = 0;
+
+	Multiply(A, x, r);
+	double nev = 0, dif = 0;
+	for (int i = 0; i < A.N; i++)
+	{
+		dif = f[i] - r[i];
+		nev += dif * dif;
+	}
+	nev = sqrt(nev) / norm_f;
+	printf_s("real difference: %e\n", nev);
+
 	system("pause");
 	return 0;
 }

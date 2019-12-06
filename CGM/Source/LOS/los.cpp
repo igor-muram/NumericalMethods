@@ -18,10 +18,12 @@ int LOS(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double ep
 	// Calculate p0
 	Multiply(A, z, p);
 
-	double diff = DotProduct(A.N, r, r);
+	double dotF = DotProduct(A.N, f, f);
+	double dotR0 = DotProduct(A.N, r, r);
+	double diff = dotR0 / dotF;
 
 	int k = 0;
-	for (; k < maxiter && diff >= eps; k++)
+	for (; k < maxiter && diff >= eps * eps; k++)
 	{
 		// Calculate alpha
 		double dotP = DotProduct(A.N, p, p);
@@ -46,10 +48,10 @@ int LOS(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, double ep
 		}
 
 		// Calculate difference
-		diff = DotProduct(A.N, r, r);
+		diff = DotProduct(A.N, r, r) / dotF;;
 	}
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -79,10 +81,12 @@ int LOS_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	for (int i = 0; i < N; i++)
 		p[i] /= LU[i];
 
-	double diff = DotProduct(N, r, r);
+	double dotF = DotProduct(A.N, f, f);
+	double dotR0 = DotProduct(A.N, r, r);
+	double diff = dotR0 / dotF;
 
 	int k = 0;
-	for (; k < maxiter && diff >= eps; k++)
+	for (; k < maxiter && diff >= eps * eps; k++)
 	{
 		// Calculate alpha
 		double dotP = DotProduct(N, p, p);
@@ -113,10 +117,10 @@ int LOS_diag1(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 		}
 
 		// Calculate difference
-		diff = DotProduct(A.N, r, r);
+		diff = DotProduct(A.N, r, r) / dotF;
 	}
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -142,10 +146,12 @@ int LOS_diag2(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	for (int i = 0; i < N; i++)
 		p[i] /= LU[i];
 
-	double diff = DotProduct(N, r, r);
+	double dotF = DotProduct(A.N, f, f);
+	double dotR0 = DotProduct(A.N, r, r);
+	double diff = dotR0 / dotF;
 
 	int k = 0;
-	for (; k < maxiter && diff >= eps; k++)
+	for (; k < maxiter && diff >= eps * eps; k++)
 	{
 		// Calculate alpha
 		double dotP = DotProduct(N, p, p);
@@ -173,10 +179,10 @@ int LOS_diag2(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 		}
 
 		// Calculate difference
-		diff = DotProduct(N, r, r);
+		diff = DotProduct(N, r, r) / dotF;
 	}
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -204,10 +210,12 @@ int LOS_diag3(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 	// Calculate p0
 	Multiply(A, z, p);
 
-	double diff = DotProduct(N, r, r);
+	double dotF = DotProduct(A.N, f, f);
+	double dotR0 = DotProduct(A.N, r, r);
+	double diff = dotR0 / dotF;
 
 	int k = 0;
-	for (; k < maxiter && diff >= eps; k++)
+	for (; k < maxiter && diff >= eps * eps; k++)
 	{
 		// Calculate alpha
 		double dotP = DotProduct(N, p, p);
@@ -235,10 +243,10 @@ int LOS_diag3(Matrix& A, double* x, double* f, AuxVectors& aux, int maxiter, dou
 		}
 
 		// Calculate difference
-		diff = DotProduct(N, r, r);
+		diff = DotProduct(N, r, r) / dotF;
 	}
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
 
@@ -264,10 +272,12 @@ int LOS_LU(Matrix& A, double* x, double* f, Matrix& LU, AuxVectors& aux, int max
 	Multiply(A, z, p);
 	Forward(LU, p, p, false);
 
-	double diff = DotProduct(N, r, r);
+	double dotF = DotProduct(A.N, f, f);
+	double dotR0 = DotProduct(A.N, r, r);
+	double diff = dotR0 / dotF;
 
 	int k = 0;
-	for (; k < maxiter && diff >= eps; k++)
+	for (; k < maxiter && diff >= eps * eps; k++)
 	{
 		// Calculate alpha
 		double dotP = DotProduct(N, p, p);
@@ -295,9 +305,9 @@ int LOS_LU(Matrix& A, double* x, double* f, Matrix& LU, AuxVectors& aux, int max
 		}
 
 		// Calculate difference
-		diff = DotProduct(N, r, r);
+		diff = DotProduct(N, r, r) / dotF;
 	}
 
-	lastdiff = diff;
+	lastdiff = sqrt(diff);
 	return k;
 }
