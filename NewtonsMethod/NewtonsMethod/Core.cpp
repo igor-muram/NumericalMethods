@@ -8,31 +8,48 @@ const vector<vector<function<double(double, double)>>> Afuncs = {
 	{
 		[](double x, double y) { return 2 * (x - 3); },
 		[](double x, double y) { return 2 * (y - 1); }
+	},
+	{
+		[](double x, double y) { return 1; },
+		[](double x, double y) { return -1; }
 	}
 };
 
 const vector<function<double(double, double)>> Ffuncs = {
 	[](double x, double y) { return  (x + 1) * (x + 1) + (y - 1) * (y - 1) - 4; },
-	[](double x, double y) { return (x - 3) * (x - 3) + (y - 1) * (y - 1) - 4; }
+	[](double x, double y) { return (x - 3) * (x - 3) + (y - 1) * (y - 1) - 4; },
+	[](double x, double y) { return (x - y); }
 };
 
 void CalculateMatrix(double** A, double* x)
 {
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < M; i++)
 		for (int j = 0; j < N; j++)
 			A[i][j] = Afuncs[i][j](x[0], x[1]);
 }
 
 void CalculateF(double* F, double* x)
 {
-	for (int i = 0; i < N; i++)
-		F[i] = Ffuncs[i](x[0], x[1]);
+	for (int i = 0; i < M; i++)
+		F[i] = -Ffuncs[i](x[0], x[1]);
 }
 
 void CalculateF(double* F, double* x, double* dx, double beta)
 {
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < M; i++)
 		F[i] = Ffuncs[i](x[0] + beta * dx[0], x[1] + beta * dx[1]);
+}
+
+void ProcessSLAE(double** A, double* F)
+{
+	for (int i = 0; i < M; i++)
+		for (int j = i + 1; j < M; j++)
+			if (abs(F[i]) < abs(F[j]))
+			{
+				swap(F[i], F[j]);
+				for (int k = 0; k < N; k++)
+					swap(A[i][k], A[j][k]);
+			}
 }
 
 void Multiply(double** A, double* vec, double* res)
@@ -69,7 +86,7 @@ void Solve(double** A, double* x, double* F)
 double Norm(double* vec)
 {
 	double sum = 0;
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < M; i++)
 		sum += vec[i] * vec[i];
 
 	return sqrt(sum);
