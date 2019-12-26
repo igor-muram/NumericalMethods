@@ -16,7 +16,7 @@ void ReadMatrix(Matrix& A, int& maxiter, double& eps)
 	A.DI = new double[A.N];
 	A.AL = new double[A.IA[A.N] + 1];
 	A.AU = new double[A.IA[A.N] + 1];
-		
+
 	in.open("input/di.txt");
 	for (int i = 0; i < A.N; i++)
 		in >> A.DI[i];
@@ -125,7 +125,7 @@ double Norm(int N, double* vector)
 }
 
 double MaxEigenValue(Matrix& A, double* x0, double* x1, int maxiter, double eps)
-{	
+{
 	int N = A.N;
 
 	double lambda0 = 0, lambda1;
@@ -134,9 +134,9 @@ double MaxEigenValue(Matrix& A, double* x0, double* x1, int maxiter, double eps)
 	for (int k = 0; k < maxiter && diff > eps; k++)
 	{
 		Multiply(A, x0, x1);
-		 
+
 		lambda1 = Norm(N, x1) / Norm(N, x0);
-		diff = abs(lambda1 - lambda0);
+		diff = abs((lambda1 - lambda0) / lambda1);
 
 		if (k % 10 == 0)
 		{
