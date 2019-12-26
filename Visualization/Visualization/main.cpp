@@ -1,4 +1,4 @@
-#include "GL/freeglut.h"
+#include "GL\freeglut.h"
 #include <fstream>
 #include <vector>
 #include <functional>
@@ -7,8 +7,7 @@ using namespace std;
 
 int Width = 1280, Height = 720;
 int xAxis = Width / 2, yAxis = Height / 2;
-int step = 50;
-
+int step = 70;
 
 struct Point
 {
@@ -17,6 +16,13 @@ struct Point
 };
 
 vector<Point> points;
+
+vector<function<double(double, double)>> F =
+{
+	[](double x, double y) { return (x + 2) * (x + 2) + (y - 1) * (y - 1) - 4; },
+	[](double x, double y) { return (x - 1) * (x - 1) + (y - 1) * (y - 1) - 4; },
+	[](double x, double y) { return y - x + 3.5; }
+};
 
 void ReadPoints(string filename)
 {
@@ -33,50 +39,46 @@ void ReadPoints(string filename)
 	in.close();
 }
 
+double Norm(double x, double y)
+{
+	double sum = 0;
+	for (auto f : F)
+		sum += f(x, y) * f(x, y);
+	return sqrt(sum);
+}
+
 void DrawDifference(double h)
 {
+	glPointSize(4);
 	glBegin(GL_POINTS);
-	for (int i = 0; i < 2000; i++)
+	for (int i = -500; i < 500; i++)
 	{
-		double x1 = i * h;
-		double x2 = -i * h;
-
-		for (int j = 0; j < 2000; j++)
+		for (int j = -500; j < 500; j++)
 		{
-			double y1 = j * h;
-			double y2 = -j * h;
+			double x = i * h;
+			double y = j * h;
 
-			double sum1 = y1 * y1 + x1 * x1 - 4;
-			sum1 *= sum1;
-			double sum2 = y1 * y1 + (x1 - 1) * (x1 - 1) - 4;
-			sum2 *= sum2;
-			double color = sqrt(sum1 + sum2);
-			glColor3ub(255 - color, 255 - color, 255 - color);
-			glVertex2f(xAxis + x1 * step, yAxis + y1 * step);
+			double diff = Norm(x, y);
+			if (diff < 0.5)
+			{
+				glColor3ub(50, 50, 50);
+				glVertex2f(xAxis + x * step, yAxis + y * step);
+			}
 
-			sum1 = y2 * y2 + x1 * x1 - 4;
-			sum1 *= sum1;
-			sum2 = y2 * y2 + (x1 - 1) * (x1 - 1) - 4;
-			sum2 *= sum2;
-			color = sqrt(sum1 + sum2);
-			glColor3ub(255 - color, 255 - color, 255 - color);
-			glVertex2f(xAxis + x1 * step, yAxis + y2 * step);
+			if (diff > 0.5 && diff < 2.0)
+			{
+				glColor3ub(80, 80, 80);
+				glVertex2f(xAxis + x * step, yAxis + y * step);
+			}
 
-			sum1 = y2 * y2 + x2 * x2 - 4;
-			sum1 *= sum1;
-			sum2 = y2 * y2 + (x2 - 1) * (x2 - 1) - 4;
-			sum2 *= sum2;
-			color = sqrt(sum1 + sum2);
-			glColor3ub(255 - color, 255 - color, 255 - color);
-			glVertex2f(xAxis + x2 * step, yAxis + y2 * step);
-
-			sum1 = y1 * y1 + x2 * x2 - 4;
-			sum1 *= sum1;
-			sum2 = y1 * y1 + (x2 - 1) * (x2 - 1) - 4;
-			sum2 *= sum2;
-			color = sqrt(sum1 + sum2);
-			glColor3ub(255 - color, 255 - color, 255 - color);
-			glVertex2f(xAxis + x2 * step, yAxis + y1 * step);
+			for (int i = 1; i < 50; i++)
+				if (diff > i * 2.0 && diff < (i + 1) * 2.0)
+				{
+					double color = 80 + i * 5;
+					if (color > 255) color = 255;
+					glColor3ub(color, color, color);
+					glVertex2f(xAxis + x * step, yAxis + y * step);
+				}
 		}
 	}
 	glEnd();
@@ -119,6 +121,7 @@ void DrawFunc(double a, double b, double h, function<double(double)> f)
 	int n = (b - a) / h;
 
 	glLineWidth(2);
+	glColor3ub(0, 200, 0);
 	glBegin(GL_LINE_STRIP);
 	for (int i = 0; i < n; i++)
 	{
@@ -134,6 +137,7 @@ void DrawParametric(double a, double b, double h, function<double(double)> xt, f
 	int n = (b - a) / h;
 
 	glLineWidth(2);
+	glColor3ub(0, 200, 0);
 	glBegin(GL_LINE_STRIP);
 	for (int i = 0; i < n; i++)
 	{
@@ -153,6 +157,7 @@ void DrawPoints(vector<Point> points)
 		glVertex2f(xAxis + point.x * step, yAxis + point.y * step);
 	glEnd();
 	glLineWidth(1);
+
 	glColor3ub(255, 0, 0);
 	glPointSize(5);
 	glBegin(GL_POINTS);
@@ -164,7 +169,7 @@ void DrawPoints(vector<Point> points)
 
 void Display()
 {
-	glClearColor(0.85, 0.85, 0.85, 1.0);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -173,11 +178,12 @@ void Display()
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
 
-	DrawDifference(0.01);
+	DrawDifference(0.02);
 	DrawAxis();
-	DrawParametric(0, 10, 0.1, [](double t) { return 1 + 2 * cos(t); }, [](double t) { return 2 * sin(t); });
-	DrawParametric(0, 10, 0.1, [](double t) { return 2 * cos(t); }, [](double t) { return 2 * sin(t); });
-	DrawPoints(points);
+	DrawParametric(0, 10, 0.1, [](double t) { return -2 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
+	DrawParametric(0, 10, 0.1, [](double t) { return 1 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
+	DrawFunc(-10, 10, 0.1, [](double t) { return t - 3.5; });
+	//DrawPoints(points);
 	glFinish();
 }
 

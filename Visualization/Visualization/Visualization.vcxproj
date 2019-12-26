@@ -70,17 +70,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\рпнгкервно\Desktop\Visualization\libs\include;C:\Repos\NumericalMethods\Visualization\libs\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\рпнгкервно\Desktop\Visualization\libs\lib;C:\Repos\NumericalMethods\Visualization\libs\lib;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ReferencePath>C:\Users\рпнгкервно\Desktop\Visualization\libs\include;$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Users\рпнгкервно\Desktop\Visualization\libs\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\рпнгкервно\Desktop\Visualization\libs\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Repos\NumericalMethods\Visualization\libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Repos\NumericalMethods\Visualization\libs\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\рпнгкервно\Desktop\Visualization\libs\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\рпнгкервно\Desktop\Visualization\libs\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Repos\NumericalMethods\Visualization\libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Repos\NumericalMethods\Visualization\libs\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Repos\NumericalMethods\Visualization\libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Repos\NumericalMethods\Visualization\libs\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Repos\NumericalMethods\Visualization\libs\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Repos\NumericalMethods\Visualization\libs\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,7 +106,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>freeglut.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,6 +138,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
