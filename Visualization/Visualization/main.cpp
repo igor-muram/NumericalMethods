@@ -17,11 +17,20 @@ struct Point
 
 vector<Point> points;
 
-vector<function<double(double, double)>> F =
-{
-	[](double x, double y) { return (x + 2) * (x + 2) + (y - 1) * (y - 1) - 4; },
-	[](double x, double y) { return (x - 1) * (x - 1) + (y - 1) * (y - 1) - 4; },
-	[](double x, double y) { return y - x + 3.5; }
+const vector<function<double(double, double)>> F1 = {
+	[](double x, double y) { return  y - x * x; },
+	[](double x, double y) { return y - x - 2; },
+};
+
+const vector<function<double(double, double)>> F2 = {
+	[](double x, double y) { return  (x - 2) * (x - 2) + (y - 1) * (y - 1) - 4; },
+	[](double x, double y) { return  (x + 2) * (x + 2) + (y - 1) * (y - 1) - 4; }
+};
+
+const vector<function<double(double, double)>> F3 = {
+	[](double x, double y) { return  (x - 2) * (x - 2) + (y - 1) * (y - 1) - 4; },
+	[](double x, double y) { return  (x + 2) * (x + 2) + (y - 1) * (y - 1) - 4; },
+	[](double x, double y) { return   y - x - 1; }
 };
 
 void ReadPoints(string filename)
@@ -39,7 +48,7 @@ void ReadPoints(string filename)
 	in.close();
 }
 
-double Norm(double x, double y)
+double Norm(const vector<function<double(double, double)>> F, double x, double y)
 {
 	double sum = 0;
 	for (auto f : F)
@@ -47,7 +56,7 @@ double Norm(double x, double y)
 	return sqrt(sum);
 }
 
-void DrawDifference(double h)
+void DrawDifference(const vector<function<double(double, double)>> F, double h)
 {
 	glPointSize(4);
 	glBegin(GL_POINTS);
@@ -58,7 +67,7 @@ void DrawDifference(double h)
 			double x = i * h;
 			double y = j * h;
 
-			double diff = Norm(x, y);
+			double diff = Norm(F, x, y);
 			if (diff < 0.5)
 			{
 				glColor3ub(50, 50, 50);
@@ -178,12 +187,20 @@ void Display()
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
 
-	DrawDifference(0.02);
+	DrawDifference(F3, 0.02);
 	DrawAxis();
-	DrawParametric(0, 10, 0.1, [](double t) { return -2 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
-	DrawParametric(0, 10, 0.1, [](double t) { return 1 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
-	DrawFunc(-10, 10, 0.1, [](double t) { return t - 3.5; });
-	//DrawPoints(points);
+
+	//DrawParametric(0, 10, 0.1, [](double t) { return -2 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
+	//DrawParametric(0, 10, 0.1, [](double t) { return 2 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
+
+	//DrawParametric(0, 10, 0.1, [](double t) { return -2 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
+	//DrawParametric(0, 10, 0.1, [](double t) { return 2 + 2 * cos(t); }, [](double t) { return 1 + 2 * sin(t); });
+	//DrawFunc(-10, 10, 0.1, [](double t) { return t + 1; });
+
+	DrawFunc(-10, 10, 0.1, [](double t) { return t * t; });
+	DrawFunc(-10, 10, 0.1, [](double t) { return t + 2; });
+
+	DrawPoints(points);
 	glFinish();
 }
 
