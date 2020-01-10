@@ -1,2 +1,2 @@
 # NumericalMethods
-Solving systems of linear equations using direct and iterative methods.
+Solving systems of linear equations by direct and iterative methods.<br>
