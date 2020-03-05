@@ -24,14 +24,32 @@
     <ClCompile Include="src\MatrixBuilder\MatrixBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\MatrixBuilder\Matrix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="tests\test2\areaMatrix.txt" />
+    <Text Include="tests\test2\boundary.txt" />
+    <Text Include="tests\test2\intervalsX.txt" />
+    <Text Include="tests\test2\intervalsY.txt" />
+    <Text Include="tests\test3\areaMatrix.txt" />
+    <Text Include="tests\test3\boundary.txt" />
+    <Text Include="tests\test3\intervalsX.txt" />
+    <Text Include="tests\test3\intervalsY.txt" />
+    <Text Include="tests\test3\data.txt" />
+    <Text Include="tests\test2\data.txt" />
+    <Text Include="tests\test4\areaMatrix.txt" />
+    <Text Include="tests\test4\boundary.txt" />
+    <Text Include="tests\test4\intervalsX.txt" />
+    <Text Include="tests\test4\intervalsY.txt" />
+    <Text Include="tests\test4\data.txt" />
+    <Text Include="tests\test5\areaMatrix.txt" />
+    <Text Include="tests\test5\boundary.txt" />
+    <Text Include="tests\test5\intervalsX.txt" />
+    <Text Include="tests\test5\intervalsY.txt" />
+    <Text Include="tests\test5\data.txt" />
+    <Text Include="input\areaMatrix.txt" />
+    <Text Include="input\boundary.txt" />
     <Text Include="input\intervalsX.txt" />
     <Text Include="input\intervalsY.txt" />
-    <Text Include="input\areaMatrix.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\MeshBuilder\MeshBuilder.h">
@@ -40,8 +58,11 @@
     <ClInclude Include="src\MatrixBuilder\MatrixBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\MatrixBuilder\Matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tests\test2\result.csv" />
+    <None Include="tests\test3\result.csv" />
+    <None Include="tests\test4\result.csv" />
+    <None Include="tests\test5\result.csv" />
   </ItemGroup>
 </Project>

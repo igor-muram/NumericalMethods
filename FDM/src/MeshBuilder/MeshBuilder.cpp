@@ -10,7 +10,7 @@ void ReadIntervals(string filename, vector<Interval>& intervals)
 	for (int i = 0; i < count; i++)
 	{
 		Interval interval;
-		in >> interval.begin >> interval.end >> interval.n;
+		in >> interval.begin >> interval.end >> interval.n >> interval.q;
 		intervals.push_back(interval);
 	}
 
@@ -36,7 +36,25 @@ void ReadAreaMatrix(string filename, vector<vector<int>>& areas)
 	in.close();
 }
 
-int CountBreakPoints(vector<Interval>& intervals)
+void ReadBoundaryConds(string filename, vector<BoundaryCondition>& conds)
+{
+	ifstream in(filename);
+
+	int count;
+	in >> count;
+	conds.resize(count);
+
+	for (int i = 0; i < count; i++)
+	{
+		in >> conds[i].xBegin >> conds[i].xEnd;
+		in >> conds[i].yBegin >> conds[i].yEnd;
+		in >> conds[i].functionNo;
+	}
+
+	in.close();
+}
+
+int CountNodes(vector<Interval>& intervals)
 {
 	int k = 0;
 	for (auto& interval : intervals)
@@ -46,20 +64,41 @@ int CountBreakPoints(vector<Interval>& intervals)
 	return k;
 }
 
-void IntervalNumbering(vector<Interval>& intervals, int k)
+void IntervalNumbering(vector<Interval>& intervals)
 {
 	intervals[0].beginN = 0;
 	int size = intervals.size();
 	for (int i = 0; i < size - 1; i++)
 	{
-		intervals[i].endN = intervals[i].beginN + intervals[i].n * k;
+		intervals[i].endN = intervals[i].beginN + intervals[i].n;
 		intervals[i + 1].beginN = intervals[i].endN;
 	}
 
-	intervals[size - 1].endN = intervals[size - 1].beginN + intervals[size - 1].n * k;
+	intervals[size - 1].endN = intervals[size - 1].beginN + intervals[size - 1].n;
 }
 
-void BuildMesh(vector<Interval>& intervals, int k, vector<double>& x, vector<double>& hx)
+void BoundaryCondsNumbering(vector<Interval>& intervalsX, vector<Interval>& intervalsY, vector<BoundaryCondition>& conds)
+{
+	vector<int> xMap, yMap;
+
+	xMap.push_back(intervalsX[0].beginN);
+	for (auto interval : intervalsX)
+		xMap.push_back(interval.endN);
+
+	yMap.push_back(intervalsY[0].beginN);
+	for (auto interval : intervalsY)
+		yMap.push_back(interval.endN);
+
+	for (auto& cond : conds)
+	{
+		cond.xBegin = xMap[cond.xBegin];
+		cond.yBegin = yMap[cond.yBegin];
+		cond.xEnd = xMap[cond.xEnd];
+		cond.yEnd = yMap[cond.yEnd];
+	}
+}
+
+void BuildMesh(vector<Interval>& intervals, vector<double>& x)
 {
 	int pos = 0;
 	for (auto interval : intervals)
@@ -67,19 +106,18 @@ void BuildMesh(vector<Interval>& intervals, int k, vector<double>& x, vector<dou
 		double begin = interval.begin;
 		double end = interval.end;
 		int n = interval.n;
+		double q = interval.q;
+		
+		double h = (q == 1.0) ? ((end - begin) / n) : ((end - begin) * (1.0 - q) / (1.0 - pow(q, n)));
 
 		x[pos++] = begin;
-
-		double h = (end - begin) / n;
 		for (int i = 1; i < n; i++, pos++)
 		{
 			double xi = begin + i * h;
 			x[pos] = xi;
-			hx[pos - 1] = xi - x[pos - 1];
+			h *= q;
 		}
-		hx[pos - 1] = end - x[pos - 1];
 	}
 
 	x[pos] = intervals.back().end;
-	hx[pos - 1] = x[pos] - x[pos - 1];
 }

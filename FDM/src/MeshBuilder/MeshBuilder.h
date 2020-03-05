@@ -11,17 +11,20 @@ struct Interval
 	double begin, end;
 	int beginN, endN;
 	int n;
+	double q;
 };
 
-struct Area
+struct BoundaryCondition
 {
-	Interval intervalX, intervalY;
+	int xBegin, xEnd;
+	int yBegin, yEnd;
+	int functionNo;
 };
 
-const double eps = 1.0e-5;
-
-void ReadIntervals(string filename, vector<Interval>& intervals);
-void ReadAreaMatrix(string filename, vector<vector<int>>& areas);
-int CountBreakPoints(vector<Interval>& intervals);
-void IntervalNumbering(vector<Interval>& intervals, int k);
-void BuildMesh(vector<Interval>& intervals, int k, vector<double>& x, vector<double>& h);
+void ReadIntervals(string filename, vector<Interval>& intervals);		
+void ReadAreaMatrix(string filename, vector<vector<int>>& areas);	
+void ReadBoundaryConds(string filename, vector<BoundaryCondition>& conds);
+int CountNodes(vector<Interval>& intervals);							
+void IntervalNumbering(vector<Interval>& intervals);					
+void BoundaryCondsNumbering(vector<Interval>& intervalsX, vector<Interval>& intervalsY, vector<BoundaryCondition>& conds);
+void BuildMesh(vector<Interval>& intervals, vector<double>& x);

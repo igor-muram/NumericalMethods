@@ -1,0 +1,13 @@
+const function<double(double, double)> f = [](double x, double y) { return gamma * (x + y); };
+
+const vector<function<double(double, double)>> borderFuncs =
+{
+	[](double x, double y) { return x; },
+	[](double x, double y) { return y; },
+	[](double x, double y) { return y + 0.5; },
+	[](double x, double y) { return x + 1.0; },
+	[](double x, double y) { return x + 0.5; },
+	[](double x, double y) { return y + 0.5; },
+	[](double x, double y) { return y + 1.0; },
+	[](double x, double y) { return x + 1.5; }
+};
