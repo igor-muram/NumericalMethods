@@ -13,10 +13,7 @@ struct point {
 	double x, y;
 
 	bool operator==(point a) {
-		if (abs(a.x - x) < 1.0e-6 && abs(a.y - y) < 1.0e-6)
-			return true;
-		else
-			return false;
+		return (abs(a.x - x) < 1.0e-6 && abs(a.y - y) < 1.0e-6);
 	}
 };
 
@@ -84,22 +81,18 @@ void PrintPoints(string filename, vector<double>& x, vector<double>& ix, vector<
 	ofstream out(filename);
 
 	for (int i = 0; i < kx; i++)
-	{
 		for (int j = 0; j < ky; j++)
 		{
 			bool flag = false;
 
 			point p = point(ix[i], iy[j]);
 			for (int k = 0; k < 49 && !flag; k++)
-			{
 				if (points[k] == p)
 					flag = true;
-			}
 
 			if (flag)
 				out << x[j * kx + i] << ';' << endl;
 		}
-	}
 
 	out.close();
 }

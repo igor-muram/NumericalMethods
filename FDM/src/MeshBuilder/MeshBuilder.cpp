@@ -26,12 +26,8 @@ void ReadAreaMatrix(string filename, vector<vector<int>>& areas)
 	areas.resize(n, vector<int>(m));
 
 	for (int i = 0; i < n; i++)
-	{
 		for (int j = 0; j < m; j++)
-		{
 			in >> areas[i][j];
-		}
-	}
 
 	in.close();
 }
@@ -107,14 +103,13 @@ void BuildMesh(vector<Interval>& intervals, vector<double>& x)
 		double end = interval.end;
 		int n = interval.n;
 		double q = interval.q;
-		
+
 		double h = (q == 1.0) ? ((end - begin) / n) : ((end - begin) * (1.0 - q) / (1.0 - pow(q, n)));
 
 		x[pos++] = begin;
 		for (int i = 1; i < n; i++, pos++)
 		{
-			double xi = begin + i * h;
-			x[pos] = xi;
+			x[pos] = begin + i * h;
 			h *= q;
 		}
 	}

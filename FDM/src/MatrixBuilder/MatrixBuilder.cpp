@@ -39,7 +39,6 @@ void BuildMatrix(
 			}
 		}
 	}
-
 }
 
 void BoundaryConditions(
@@ -102,10 +101,8 @@ bool IsOnBorder(vector<BoundaryCondition>& conds, int ix, int iy)
 	int size = conds.size();
 
 	for (int i = 0; i < size && !isOnBorder; i++)
-	{
 		if (ix >= conds[i].xBegin && ix <= conds[i].xEnd && iy >= conds[i].yBegin && iy <= conds[i].yEnd)
 			isOnBorder = true;
-	}
 
 	return isOnBorder;
 }

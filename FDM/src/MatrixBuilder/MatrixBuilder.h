@@ -8,16 +8,16 @@
 
 using namespace std;
 
-const double gamma = 1.0;
+const double gamma = 2.0;
 
-const function<double(double, double)> f = [](double x, double y) { return gamma * 5.0; };
+const function<double(double, double)> f = [](double x, double y) { return -2 + gamma * x * x; };
 
 const vector<function<double(double, double)>> borderFuncs =
 {
-	[](double x, double y) { return 5.0; },
-	[](double x, double y) { return 5.0; },
-	[](double x, double y) { return 5.0; },
-	[](double x, double y) { return 5.0; }
+	[](double x, double y) { return x * x; },
+	[](double x, double y) { return 1.0; },
+	[](double x, double y) { return x * x; },
+	[](double x, double y) { return 0.0; }
 };
 
 void BuildMatrix(
