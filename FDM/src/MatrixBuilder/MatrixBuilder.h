@@ -16,8 +16,12 @@ const vector<function<double(double, double)>> borderFuncs =
 {
 	[](double x, double y) { return x * x; },
 	[](double x, double y) { return 1.0; },
+	[](double x, double y) { return 4.0; },
 	[](double x, double y) { return x * x; },
-	[](double x, double y) { return 0.0; }
+	[](double x, double y) { return x * x; },
+	[](double x, double y) { return 4.0; },
+	[](double x, double y) { return 9.0; },
+	[](double x, double y) { return x * x; }
 };
 
 void BuildMatrix(

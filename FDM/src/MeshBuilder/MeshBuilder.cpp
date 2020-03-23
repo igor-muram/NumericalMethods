@@ -109,7 +109,7 @@ void BuildMesh(vector<Interval>& intervals, vector<double>& x)
 		x[pos++] = begin;
 		for (int i = 1; i < n; i++, pos++)
 		{
-			x[pos] = begin + i * h;
+			x[pos] = x[pos - 1] + h;
 			h *= q;
 		}
 	}
