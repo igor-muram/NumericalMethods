@@ -9,15 +9,8 @@
 
 using namespace std;
 
-int n = 1, key = 0;
-double x2, y2, angle = 0.5;	// for tree
-int r = 2;					// for tree and Pifagor
-
-int iteration = 0;
-
-int pifagorR = 1;
-double q = 1.0;
-
+int n = 1, key = 0, pifagorR = 1, iteration = 0, r = 2;
+double x2, y2, angle = 0.5, q = 1.0;
 vector<double> x, y;
 
 enum {
@@ -171,18 +164,6 @@ void PifagorCalculate(int j)
 	}
 }
 
-void Reshape(int w, int h)
-{
-	glViewport(0, 0, w, h);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0, w, 0, h);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
 void MandelbrotDraw()
 {
 	glClearColor(0.11, 0.22, 0.31, 1.0);
@@ -207,6 +188,18 @@ void MandelbrotDraw()
 	glEnd();
 
 	glutSwapBuffers();
+}
+
+void Reshape(int w, int h)
+{
+	glViewport(0, 0, w, h);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, w, 0, h);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 void Draw()
@@ -236,7 +229,6 @@ void Draw()
 		case KochAntiSnowflakeKey:
 			KochSnowflake(iteration, false);
 			break;
-
 		}
 
 		for (int i = 0; i < 4 * n; i++)
@@ -256,10 +248,8 @@ void Draw()
 	break;
 
 	case LevyCurveKey:
-	{
 		LevyCalculate(0.4, 0.0, -0.4, 0.0, iteration, true);
-	}
-	break;
+		break;
 
 	case LevySquare1Key:
 	case DragonLevySquare1Key:
@@ -284,10 +274,8 @@ void Draw()
 	break;
 
 	case DragonLevyCurveKey:
-	{
 		LevyCalculate(0.5, 0.0, -0.7, -0.3, iteration, false);
-	}
-	break;
+		break;
 
 	case PifagorKey:
 	{
@@ -348,10 +336,8 @@ void Keyboard(unsigned char k, int x, int y)
 		}
 
 	if (k == 'r')
-	{
 		if (r < 12)
 			r++;
-	}
 
 	if (k == 'f')
 		if (r > 1)
@@ -371,11 +357,7 @@ void Keyboard(unsigned char k, int x, int y)
 
 	if (k == 'h')
 	{
-		if (q > 0.1)
-			q -= 0.01;
-		else
-			q = 0.1;
-
+		q > 0.1 ? q -= 0.01 : q = 0.1;
 		pifagorR = 1;
 	}
 
@@ -386,10 +368,12 @@ void InitWindow(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB);
+
 	if (key == 12)
 		glutInitWindowSize(1200, 800);
 	else
 		glutInitWindowSize(900, 900);
+
 	glutCreateWindow("Fractals");
 	glutKeyboardFunc(Keyboard);
 }
@@ -431,5 +415,4 @@ void main(int argc, char* argv[])
 		glutDisplayFunc(Draw);
 		glutMainLoop();
 	}
-
 }
