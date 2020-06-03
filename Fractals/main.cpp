@@ -3,15 +3,20 @@
 #include <functional>
 #include <cmath>
 #include <string>
+#include <complex>
 
 #include "GL\freeglut.h"
 
 using namespace std;
 
-int n = 1, key;
-double x2, y2, angle;		// for tree
-int r, k;					// for tree and Pifagor
-double q;					// for Pifagor
+int n = 1, key = 0;
+double x2, y2, angle = 0.5;	// for tree
+int r = 2;					// for tree and Pifagor
+
+int iteration = 0;
+
+int pifagorR = 1;
+double q = 1.0;
 
 vector<double> x, y;
 
@@ -160,36 +165,13 @@ void PifagorCalculate(int j)
 
 	for (int i = 0; i < count; i += 5)
 	{
-		PifagorPattern(x[i], y[i], x[i + 1], y[i + 1], 5 * r);
-		PifagorPattern(x[i + 1], y[i + 1], x[i + 2], y[i + 2], 5 * (r + 1));
-		r += 2;
+		PifagorPattern(x[i], y[i], x[i + 1], y[i + 1], 5 * pifagorR);
+		PifagorPattern(x[i + 1], y[i + 1], x[i + 2], y[i + 2], 5 * (pifagorR + 1));
+		pifagorR += 2;
 	}
 }
 
-class Complex
-{
-private:
-	double r, i;
-public:
-	Complex(double r, double i) : r(r), i(i) {}
-
-	Complex operator+(const Complex& c)
-	{
-		return Complex(r + c.r, i + c.i);
-	}
-
-	Complex operator*(const Complex& c)
-	{
-		return Complex(r * c.r - i * c.i, 2 * r * c.i);
-	}
-
-	double abs()
-	{
-		return sqrt(r * r + i * i);
-	}
-};
-
-void MandelbrotReshape(int w, int h)
+void Reshape(int w, int h)
 {
 	glViewport(0, 0, w, h);
 
@@ -210,10 +192,10 @@ void MandelbrotDraw()
 	for (int y = 0; y < 800; y++)
 		for (int x = 0; x < 1200; x++)
 		{
-			Complex z(0, 0);
+			complex<double> z(0, 0);
 			int i = 0;
-			for (; i < 500 && z.abs() < 2; i++)
-				z = z * z + Complex((x - 750) / 300.0, (y - 400) / 300.0);
+			for (; i < 500 && abs(z) < 2; i++)
+				z = z * z + complex<double>((x - 750) / 300.0, (y - 400) / 300.0);
 
 			double r = 0.1 + i * 0.03 * 0.2;
 			double g = 0.2 + i * 0.03 * 0.3;
@@ -241,6 +223,22 @@ void Draw()
 	case KochSnowflakeKey:
 	case KochAntiSnowflakeKey:
 	{
+		switch (key - 1)
+		{
+		case KochCurveKey:
+			KochCurve(iteration, true);
+			break;
+
+		case KochSnowflakeKey:
+			KochSnowflake(iteration, true);
+			break;
+
+		case KochAntiSnowflakeKey:
+			KochSnowflake(iteration, false);
+			break;
+
+		}
+
 		for (int i = 0; i < 4 * n; i++)
 		{
 			glVertex2d(x[i], y[i]);
@@ -251,19 +249,15 @@ void Draw()
 
 	case TreeKey:
 	{
-		for (int j = 0; j <= k; j++)
-		{
-			glVertex2d(0.0, -1.0);
-			glVertex2d(0.0, -0.1);
-			TreeCalculate(0.0, -0.1, 0.60, 0.5, j);
-		}
+		glVertex2d(0.0, -1.0);
+		glVertex2d(0.0, -0.1);
+		TreeCalculate(0.0, -0.1, 0.60, 0.5, iteration);
 	}
 	break;
 
 	case LevyCurveKey:
 	{
-		for (int j = 0; j <= k; j++)
-			LevyCalculate(0.4, 0.0, -0.4, 0.0, j, true);
+		LevyCalculate(0.4, 0.0, -0.4, 0.0, iteration, true);
 	}
 	break;
 
@@ -272,11 +266,8 @@ void Draw()
 	{
 		bool flag = (key == 6);
 
-		for (int j = 0; j <= k; j++)
-		{
-			LevyCalculate(0.4, 0.0, -0.4, 0.0, j, flag);
-			LevyCalculate(-0.4, 0.0, 0.4, 0.0, j, flag);
-		}
+		LevyCalculate(0.4, 0.0, -0.4, 0.0, iteration, flag);
+		LevyCalculate(-0.4, 0.0, 0.4, 0.0, iteration, flag);
 	}
 	break;
 
@@ -285,29 +276,27 @@ void Draw()
 	{
 		bool flag = (key == 7);
 
-		for (int j = 0; j <= k; j++)
-		{
-			LevyCalculate(0.3, 0.3, -0.3, 0.3, j, flag);
-			LevyCalculate(-0.3, -0.3, 0.3, -0.3, j, flag);
-			LevyCalculate(-0.3, 0.3, -0.3, -0.3, j, flag);
-			LevyCalculate(0.3, -0.3, 0.3, 0.3, j, flag);
-		}
+		LevyCalculate(0.3, 0.3, -0.3, 0.3, iteration, flag);
+		LevyCalculate(-0.3, -0.3, 0.3, -0.3, iteration, flag);
+		LevyCalculate(-0.3, 0.3, -0.3, -0.3, iteration, flag);
+		LevyCalculate(0.3, -0.3, 0.3, 0.3, iteration, flag);
 	}
 	break;
 
 	case DragonLevyCurveKey:
 	{
-		for (int j = 0; j <= k; j++)
-			LevyCalculate(0.5, 0.0, -0.7, -0.3, j, false);
+		LevyCalculate(0.5, 0.0, -0.7, -0.3, iteration, false);
 	}
 	break;
 
 	case PifagorKey:
 	{
+		PifagorCalculate(iteration);
+
 		glVertex2d(x[3], y[3]);
 		glVertex2d(x[4], y[4]);
 
-		for (int i = 0; i < 5 * r; i += 5)
+		for (int i = 0; i < 5 * pifagorR; i += 5)
 		{
 			glVertex2d(x[i], y[i]);
 			glVertex2d(x[i + 1], y[i + 1]);
@@ -328,8 +317,69 @@ void Draw()
 	break;
 	}
 	glEnd();
-
 	glFinish();
+}
+
+void Keyboard(unsigned char k, int x, int y)
+{
+	if (k == 'w')
+		iteration++;
+
+	if (k == 's')
+	{
+		if (iteration > 0)
+			iteration--;
+
+		pifagorR = 1;
+	}
+
+	if (k == 'a')
+		if (key > 1)
+		{
+			key--;
+			iteration = 0;
+		}
+
+	if (k == 'd')
+		if (key < 11)
+		{
+			key++;
+			iteration = 0;
+		}
+
+	if (k == 'r')
+	{
+		if (r < 12)
+			r++;
+	}
+
+	if (k == 'f')
+		if (r > 1)
+			r--;
+
+	if (k == 't')
+		angle += 0.05;
+
+	if (k == 'g')
+		angle -= 0.05;
+
+	if (k == 'y')
+	{
+		q += 0.01;
+		pifagorR = 1;
+	}
+
+	if (k == 'h')
+	{
+		if (q > 0.1)
+			q -= 0.01;
+		else
+			q = 0.1;
+
+		pifagorR = 1;
+	}
+
+	glutPostRedisplay();
 }
 
 void InitWindow(int argc, char* argv[])
@@ -341,6 +391,7 @@ void InitWindow(int argc, char* argv[])
 	else
 		glutInitWindowSize(900, 900);
 	glutCreateWindow("Fractals");
+	glutKeyboardFunc(Keyboard);
 }
 
 void main(int argc, char* argv[])
@@ -361,9 +412,7 @@ void main(int argc, char* argv[])
 
 	cin >> key;
 
-	while (key != 1 && key != 2 && key != 3 && key != 4 && key != 5 &&
-		key != 6 && key != 7 && key != 8 && key != 9 && key != 10 &&
-		key != 11 && key != 12)
+	while (key < 1 || key > 12)
 	{
 		cout << endl << "Incorrect value. Try again. Choose a fractal: ";
 		cin >> key;
@@ -372,81 +421,15 @@ void main(int argc, char* argv[])
 	if (key == 12)
 	{
 		InitWindow(argc, argv);
+		glutReshapeFunc(Reshape);
 		glutDisplayFunc(MandelbrotDraw);
-		glutReshapeFunc(MandelbrotReshape);
-		glutMainLoop();
-	}
-	else if (key == 8)					// Draw Pifagor tree
-	{
-		cout << endl << "Enter parameters:" << endl;
-		cout << "Number of approximations (for example, 15): ";
-		cin >> k;
-
-		cout << "Ratio of the side lengths of triangles (for example, 1.4): ";
-		cin >> q;
-
-		r = 1;
-
-		InitWindow(argc, argv);
-
-		for (int j = 1; j <= k; j++)
-		{
-			PifagorCalculate(j);
-			glutDisplayFunc(Draw);
-		}
-
-		glutMainLoop();
-	}
-	else if (key >= 4 && key <= 7 || key >= 9 && key <= 11)
-	{
-		cout << endl << "Enter parameters:" << endl;
-		if (key == 4)
-		{
-			// Draw tree
-			cout << "Number of approximations (for example, 8): ";
-			cin >> k;
-
-			cout << "Branch angle increment (for example, 0.5): ";
-			cin >> angle;
-
-			cout << "Branch type (for example, 2): ";
-			cin >> r;
-		}
-		else
-		{
-			// Draw Levy curve and square, draw Dragon Levy curve and square
-			cout << "Number of approximations (for example, 15): ";
-			cin >> k;
-		}
-
-		InitWindow(argc, argv);
-		glutDisplayFunc(Draw);
 		glutMainLoop();
 	}
 	else
 	{
-		// Draw Koch
 		InitWindow(argc, argv);
-
-		for (int i = 0; i <= 4; i++)
-		{
-			switch (key - 1)
-			{
-			case KochCurveKey:
-				KochCurve(i, true);
-				break;
-
-			case KochSnowflakeKey:
-				KochSnowflake(i, true);
-				break;
-
-			case KochAntiSnowflakeKey:
-				KochSnowflake(i, false);
-				break;
-			}
-
-			glutDisplayFunc(Draw);
-		}
+		glutDisplayFunc(Draw);
 		glutMainLoop();
 	}
+
 }
