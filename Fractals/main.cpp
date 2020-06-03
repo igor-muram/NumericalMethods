@@ -311,7 +311,10 @@ void Draw()
 void Keyboard(unsigned char k, int x, int y)
 {
 	if (k == 'w')
+	{
 		iteration++;
+		pifagorR = 1;
+	}
 
 	if (k == 's')
 	{
@@ -402,17 +405,15 @@ void main(int argc, char* argv[])
 		cin >> key;
 	}
 
+	InitWindow(argc, argv);
+
 	if (key == 12)
 	{
-		InitWindow(argc, argv);
 		glutReshapeFunc(Reshape);
 		glutDisplayFunc(MandelbrotDraw);
-		glutMainLoop();
 	}
 	else
-	{
-		InitWindow(argc, argv);
 		glutDisplayFunc(Draw);
-		glutMainLoop();
-	}
+
+	glutMainLoop();
 }
