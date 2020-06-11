@@ -59,12 +59,8 @@ void NaturalCubicSpline(vector<Point>& points, vector<Point>& spline)
 	double end = points.back().x;
 
 	spline.push_back(
-		Point(
-			end,
-			a[n - 1] +
-			b[n - 1] * (end - points[n - 1].x) +
-			c[n - 1] * (end - points[n - 1].x) * (end - points[n - 1].x) +
-			d[n - 1] * (end - points[n - 1].x) * (end - points[n - 1].x) * (end - points[n - 1].x)));
+		Point(end, a[n - 1] + b[n - 1] * (end - points[n - 1].x) + c[n - 1] * pow(end - points[n - 1].x, 2) + d[n - 1] * pow(end - points[n - 1].x, 3))
+	);
 }
 
 void LagrangePolynomial(vector<Point>& points, vector<Point>& spline)

@@ -14,7 +14,7 @@ int gridWidth = 200;
 int currentPoint = -1;
 bool drawLabel = false;
 
-vector<Point> points;
+vector<Point> points, Bpoints;
 vector<Point> spline1, spline2, spline3, spline4, spline5;
 
 bool s1 = false;
@@ -142,7 +142,7 @@ void Display()
 	glEnable(GL_POINT_SMOOTH);
 	glHint(GL_POINT_SMOOTH, GL_NICEST);
 
-	if (points.size() > 0)
+	if (points.size() > 1)
 	{
 		if (s1)
 		{
@@ -168,19 +168,19 @@ void Display()
 			BezierCurve(points, spline4);
 			DrawLines(spline4, 156, 26, 84);
 		}
-		if (s6)
-		{
-			BSpline(points, spline5);
-
-			if (points.size() < 4)
-				DrawText("Not enough points to draw spline", 2, Height - 17);
-			else
-				DrawLines(spline5, 255, 255, 255);
-		}
 	}
 	else
 		DrawText("Not enough points to draw spline", 2, Height - 17);
 
+	if (Bpoints.size() > 0 && s6)
+	{
+		BSpline(Bpoints, spline5);
+
+		if (Bpoints.size() < 4)
+			DrawText("Not enough points to draw spline", 2, Height - 17);
+		else
+			DrawLines(spline5, 255, 255, 255);
+	}
 
 	DrawGrid();
 	DrawLabels();
@@ -208,7 +208,10 @@ void Mouse(int button, int state, int x, int y)
 	int trueY = Height - y;
 
 	if (state == GLUT_DOWN && button == GLUT_RIGHT_BUTTON)
+	{
 		points.push_back(Point((x - xAxis) / step, (trueY - yAxis) / step));
+		Bpoints.push_back(points.back());
+	}
 
 	if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON)
 	{
@@ -235,19 +238,36 @@ void Mouse(int button, int state, int x, int y)
 
 void Keyboard(unsigned char key, int x, int y)
 {
+	int BcurrentPoint = 0;
 	if (currentPoint != -1)
 	{
+		for (int i = 0; i < Bpoints.size(); i++)
+			if ((Bpoints[i].y - points[currentPoint].y) * (Bpoints[i].y - points[currentPoint].y) + (Bpoints[i].x - points[currentPoint].x) * (Bpoints[i].x - points[currentPoint].x) < 1.0e-10)
+				BcurrentPoint = i;
+
 		if (key == 'w')
+		{
 			points[currentPoint].y += 0.1;
+			Bpoints[BcurrentPoint].y += 0.1;
+		}
 
 		if (key == 's')
+		{
 			points[currentPoint].y -= 0.1;
+			Bpoints[BcurrentPoint].y -= 0.1;
+		}
 
 		if (key == 'a')
+		{
 			points[currentPoint].x -= 0.1;
+			Bpoints[BcurrentPoint].x -= 0.1;
+		}
 
 		if (key == 'd')
+		{
 			points[currentPoint].x += 0.1;
+			Bpoints[BcurrentPoint].x += 0.1;
+		}
 
 		if (key == 'z')
 		{
@@ -269,11 +289,14 @@ void Keyboard(unsigned char key, int x, int y)
 	if (key == 'c')
 	{
 		points.clear();
+		Bpoints.clear();
+
 		spline1.clear();
 		spline2.clear();
 		spline3.clear();
 		spline4.clear();
 		spline5.clear();
+
 		currentPoint = -1;
 	}
 
@@ -296,7 +319,6 @@ void Keyboard(unsigned char key, int x, int y)
 	if (key == '6')
 		s6 = !s6;
 
-
 	if (key == 'i')
 		yAxis -= 25;
 
@@ -318,23 +340,27 @@ void Keyboard(unsigned char key, int x, int y)
 	if (key == 'v')
 		drawLabel = !drawLabel;
 
-
 	if (key == 'b' && currentPoint != -1)
 	{
+		Bpoints.erase(Bpoints.begin() + BcurrentPoint);
+
+		for (int i = 0; i < Bpoints.size(); i++)
+			if ((Bpoints[i].y - points[currentPoint].y) * (Bpoints[i].y - points[currentPoint].y) + (Bpoints[i].x - points[currentPoint].x) * (Bpoints[i].x - points[currentPoint].x) < 1.0e-10)
+				Bpoints.erase(Bpoints.begin() + currentPoint);
+
 		points.erase(points.begin() + currentPoint);
 		currentPoint = -1;
 	}
+
 	glutPostRedisplay();
 }
 
 void main(int argc, char* argv[])
 {
-	//points = { Point(-2.0, 1.0) };
-
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB);
 	glutInitWindowSize(Width, Height);
-	glutCreateWindow("Hello");
+	glutCreateWindow("Splines");
 	glutDisplayFunc(Display);
 	glutReshapeFunc(Reshape);
 	glutMouseFunc(Mouse);
