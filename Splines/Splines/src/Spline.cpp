@@ -194,7 +194,7 @@ uint64_t Binomial(int k, int n)
 	return result;
 }
 
-void BeizerCurve(vector<Point>& points, vector<Point>& spline)
+void BezierCurve(vector<Point>& points, vector<Point>& spline)
 {
 	spline.clear();
 	size_t n = points.size() - 1;
@@ -219,26 +219,30 @@ void BeizerCurve(vector<Point>& points, vector<Point>& spline)
 		spline.push_back(curve(t));
 }
 
-double xA, xB, xC, xD, yA, yB, yC, yD;
 double a0, a1, a2, a3, b0, b1, b2, b3;
-void Coordinates(int i, vector<Point>& points)
+void Coordinates(int i, vector<Point>& points, vector<double>& coeffs)
 {
-	xA = points[i - 1].x;
-	xB = points[i].x;
-	xC = points[i + 1].x;
-	xD = points[i + 2].x;
-	yA = points[i - 1].y;
-	yB = points[i].y;
-	yC = points[i + 1].y;
-	yD = points[i + 2].y;
-	a3 = (-xA + 3 * (xB - xC) + xD) / 6.0;
-	a2 = (xA - 2 * xB + xC) / 2.0;
-	a1 = (xC - xA) / 2.0;
-	a0 = (xA + 4 * xB + xC) / 6.0;
-	b3 = (-yA + 3 * (yB - yC) + yD) / 6.0;
-	b2 = (yA - 2 * yB + yC) / 2.0;
-	b1 = (yC - yA) / 2.0;
-	b0 = (yA + 4 * yB + yC) / 6.0;
+	double x1 = points[i - 1].x;
+	double x2 = points[i].x;
+	double x3 = points[i + 1].x;
+	double x4 = points[i + 2].x;
+
+	double y1 = points[i - 1].y;
+	double y2 = points[i].y;
+	double y3 = points[i + 1].y;
+	double y4 = points[i + 2].y;
+
+	coeffs[0] = (-x1 + 3 * (x2 - x3) + x4) / 6.0;
+	coeffs[1] = (-y1 + 3 * (y2 - y3) + y4) / 6.0;
+
+	coeffs[2] = (x1 - 2 * x2 + x3) / 2.0;
+	coeffs[3] = (y1 - 2 * y2 + y3) / 2.0;
+
+	coeffs[4] = (x3 - x1) / 2.0;
+	coeffs[5] = (y3 - y1) / 2.0;
+
+	coeffs[6] = (x1 + 4 * x2 + x3) / 6.0;
+	coeffs[7] = (y1 + 4 * y2 + y3) / 6.0;
 }
 
 void BSpline(vector<Point>& points, vector<Point>& spline)
@@ -246,25 +250,33 @@ void BSpline(vector<Point>& points, vector<Point>& spline)
 	spline.clear();
 	size_t n = points.size() - 1;
 
+	vector<double> coeffs;
+	coeffs.resize(8);
+
 	int N = 100;
 
-	spline.push_back(points[0]);
+	if (n == 0)
+		points.push_back(points[0]);
 
 	if (n > 2)
 	{
+		spline.push_back(points[0]);
 		points.push_back(points[n]);
+
 		for (int i = 1; i < n; i++)
 		{
-			Coordinates(i, points);
+			Coordinates(i, points, coeffs);
 			for (int j = 0; j <= N; j++)
 			{
 				double t = (double)j / N;
-				double X = (((a3 * t + a2) * t + a1) * t + a0);
-				double Y = (((b3 * t + b2) * t + b1) * t + b0);
+				double X = ((coeffs[0] * t + coeffs[2]) * t + coeffs[4]) * t + coeffs[6];
+				double Y = ((coeffs[1] * t + coeffs[3]) * t + coeffs[5]) * t + coeffs[7];
+
 				spline.push_back(Point(X, Y));
 			}
 		}
 
-		spline.push_back(points[n + 1]);
+		spline.push_back(points[n]);
+		points.pop_back();
 	}
 }

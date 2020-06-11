@@ -61,7 +61,7 @@ void LagrangeQuadratic(vector<Point>& points, vector<Point>& spline);
 /// </summary>
 /// <param name="points">Массив входных точек (x, y)</param>
 /// <param name="spline">Массив точек для вывода сплайна</param>
-void BeizerCurve(vector<Point>& points, vector<Point>& spline);
+void BezierCurve(vector<Point>& points, vector<Point>& spline);
 
 /// <summary>
 /// B-сплайн

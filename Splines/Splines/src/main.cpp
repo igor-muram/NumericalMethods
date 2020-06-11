@@ -142,8 +142,7 @@ void Display()
 	glEnable(GL_POINT_SMOOTH);
 	glHint(GL_POINT_SMOOTH, GL_NICEST);
 
-
-	if (points.size() > 1)
+	if (points.size() > 0)
 	{
 		if (s1)
 		{
@@ -166,19 +165,22 @@ void Display()
 		}
 		if (s5)
 		{
-			BeizerCurve(points, spline4);
+			BezierCurve(points, spline4);
 			DrawLines(spline4, 156, 26, 84);
 		}
 		if (s6)
 		{
 			BSpline(points, spline5);
-			DrawLines(spline5, 255, 255, 255);
+
+			if (points.size() < 4)
+				DrawText("Not enough points to draw spline", 2, Height - 17);
+			else
+				DrawLines(spline5, 255, 255, 255);
 		}
 	}
 	else
-	{
 		DrawText("Not enough points to draw spline", 2, Height - 17);
-	}
+
 
 	DrawGrid();
 	DrawLabels();
@@ -327,9 +329,7 @@ void Keyboard(unsigned char key, int x, int y)
 
 void main(int argc, char* argv[])
 {
-	points = {
-		Point(-2.0, 1.0)
-	};
+	//points = { Point(-2.0, 1.0) };
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB);
