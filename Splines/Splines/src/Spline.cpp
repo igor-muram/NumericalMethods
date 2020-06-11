@@ -219,7 +219,6 @@ void BezierCurve(vector<Point>& points, vector<Point>& spline)
 		spline.push_back(curve(t));
 }
 
-double a0, a1, a2, a3, b0, b1, b2, b3;
 void Coordinates(int i, vector<Point>& points, vector<double>& coeffs)
 {
 	double x1 = points[i - 1].x;
