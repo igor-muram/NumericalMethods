@@ -90,7 +90,7 @@ void LagrangePolynomial(vector<Point>& points, vector<Point>& spline)
 	double a = points[0].x;
 	double b = points.back().x;
 
-	double h = (b - a) / 100;
+	double h = (b - a) / 10000;
 
 	for (double x = a; x < b; x += h)
 	{
