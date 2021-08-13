@@ -1,4 +1,4 @@
-# LUDecomposition
+# Direct Methods
 * Solving systems of linear equations by the direct method using LU decomposition.
 * Solving systems of linear equations by the Gauss method with lead element.
 * Hilbert matrix generator of any dimension in profile format.
