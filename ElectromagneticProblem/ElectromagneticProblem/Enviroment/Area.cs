@@ -56,6 +56,7 @@ namespace ElectromagneticProblem.Enviroment
       public double q;
       public int dir;
       public int factor;
+      public bool isUniform;
 
       public double[] Points { get; set; }
 
@@ -68,31 +69,30 @@ namespace ElectromagneticProblem.Enviroment
          this.q = q;
          this.dir = dir;
 
+         isUniform = q == 1.0;
+
+         if (factor != 0)
+         {
+            this.initialStep /= Math.Pow(2.0, factor);
+
+            if (!isUniform)
+               this.q = Math.Pow(q, 1.0 / Math.Pow(2.0, factor));
+			}
+
          Split();
       }
 
       void Split()
       {
-         bool isUniform = q == 1.0;
-
          if (!isUniform)
          {
-            int n = (int)(Math.Log((b - a) * (q - 1) / initialStep + 1) / Math.Log(q));
+            int n = (int)Math.Ceiling(Math.Log((b - a) * (q - 1) / initialStep + 1) / Math.Log(q));
+            initialStep = (b - a) * (q - 1) / (Math.Pow(q, n) - 1);
 
             List<double> steps = new List<double>();
 
             for (int i = 0; i < n; i++)
                steps.Add(initialStep * Math.Pow(q, i));
-
-            double s = initialStep * (Math.Pow(q, n) - 1) / (q - 1);
-            double length = b - a;
-            double lastStep = steps.Last();
-
-            // if (length - s < lastStep * q)
-            //  steps[steps.Count - 1] = length - (s - lastStep);
-            //else
-            if (Math.Abs(length - s) > 1.0e-15)
-               steps.Add(length - s);
 
             Points = new double[steps.Count + 1];
 
@@ -121,17 +121,12 @@ namespace ElectromagneticProblem.Enviroment
          }
          else
          {
-            int n = (int)((b - a) / initialStep);
+            int n = (int)Math.Round((b - a) / initialStep);
+            initialStep = (b - a) / n;
 
-            if (Math.Abs(b - a - n * initialStep) > 1.0e-15)
-               Points = new double[n + 2];
-            else
-               Points = new double[n + 1];
-
+            Points = new double[n + 1];
             for (int i = 0; i < n + 1; i++)
                Points[i] = a + i * initialStep;
-            if (Math.Abs(b - a - n * initialStep) > 1.0e-15)
-               Points[n + 1] = b;
          }
       }
 
