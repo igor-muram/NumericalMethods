@@ -28,138 +28,44 @@ std::istream& operator>>(std::istream& stream, SubArea& area)
 
 #pragma endregion
 
-//class IntervalSplitter
-//{
-//public:
-//	double a = 0.0;
-//	double b = 0.0;
-//	double step = 0.0;
-//	double q = 0.0;
-//	int dir = 0;
-//
-//	bool isUniform = false;
-//
-//	std::vector<double> points;
-//	size_t pointsCount = 0;
-//
-//	IntervalSplitter() = default;
-//
-//	IntervalSplitter(double a, double b, double step, double q, int dir) : a(a), b(b), step(step), q(q), dir(dir)
-//	{
-//		isUniform = q == 1.0;
-//
-//		if (!isUniform)
-//		{
-//			int n = (int)(std::log((b - a) * (q - 1) / step + 1) / std::log(q));
-//
-//			for (int i = 0; i < n; i++)
-//				points.push_back(a + step * (std::pow(q, i) - 1) / (q - 1));
-//
-//			double x = a + step * (std::pow(q, n) - 1) / (q - 1);
-//			double lastStep = x - points.back();
-//
-//			if (b - x < lastStep * 0.5)
-//				points.push_back(b);
-//			else
-//			{
-//				points.push_back(x);
-//				points.push_back(b);
-//			}
-//
-//		}
-//		else
-//		{
-//			int n = (int)((b - a) / step);
-//			for (int i = 0; i < n +1; i++)
-//				points.push_back(a + step * i);
-//		}
-//
-//		pointsCount = points.size();
-//
-//		if (dir == -1)
-//			std::reverse(points.begin(), points.end());
-//			
-//	}
-//
-//	~IntervalSplitter()
-//	{
-//		points.clear();
-//		points.shrink_to_fit();
-//	}
-//
-//	std::vector<double>::iterator begin()
-//	{
-//		return points.begin();
-//	}
-//
-//	std::vector<double>::iterator end()
-//	{
-//		return points.end();
-//	}
-//
-//	std::vector<double>::const_iterator cbegin()
-//	{
-//		return points.cbegin();
-//	}
-//
-//	std::vector<double>::const_iterator cend()
-//	{
-//		return points.cend();
-//	}
-//
-//	double operator[] (int i)
-//	{
-//		return points[i];
-//	}
-//};
+#pragma region Interval
 
-class IntervalSplitter
+struct Interval
 {
-public:
 	double a = 0.0;
-	double b = 0.0;
-	double step = 0.0;
+	double  b = 0.0;
 	double q = 0.0;
 	int dir = 0;
 
 	bool isUniform = false;
 
 	size_t pointsCount = 0;
-
 	double firstStep = 0.0;
-	double lastStep = 0.0;
-	double lastJoinStep = 0.0;
 
-	IntervalSplitter() = default;
-
-	IntervalSplitter(double a, double b, double step, double q, int dir) : a(a), b(b), step(step), q(q), dir(dir)
+	void Split()
 	{
+		if (MathUtility::IsEqual(a, b) || MathUtility::IsEqual(q, 0.0) || dir == 0)
+			throw new std::exception("ERROR! Interval parameters are not initialized");
+
 		isUniform = q == 1.0;
-		firstStep = step;
 
 		if (!isUniform)
 		{
-			int n = (int)(std::log((b - a) * (q - 1) / step + 1) / std::log(q));
+			int n = (int)(std::log((b - a) * (q - 1) / firstStep + 1) / std::log(q));
 
-			double x1 = a + step * (std::pow(q, n - 1) - 1) / (q - 1);
-			double x2 = a + step * (std::pow(q, n) - 1) / (q - 1);
-			lastStep = x2 - x1;
+			double x1 = a + firstStep * (std::pow(q, n - 1) - 1) / (q - 1);
+			double x2 = a + firstStep * (std::pow(q, n) - 1) / (q - 1);
+			double lastStep = x2 - x1;
 
 
 			if (b - x2 < lastStep * 0.5)
-			{
-				lastJoinStep = b - x1;
 				pointsCount = n + 1;
-			}
 			else
-			{
-				lastJoinStep = b - x2;
 				pointsCount = n + 2;
-			}
 		}
 		else
 		{
-			int n = (int)((b - a) / step);
+			int n = (int)((b - a) / firstStep);
 			pointsCount = n + 1;
 		}
 	}
@@ -187,7 +93,7 @@ public:
 
 	double GetUniformPoint(int i)
 	{
-		return a + step * i;
+		return a + firstStep * i;
 	}
 
 	double GetNonUniformPoint(int i)
@@ -197,21 +103,6 @@ public:
 		else
 			return b;
 	}
-};
-
-#pragma region Interval
-
-struct Interval
-{
-	double a = 0.0;
-	double  b = 0.0;
-	double initStep = 0.0;
-	double q = 0.0;
-	int qDirection = 0;
-
-	IntervalSplitter splitter;
-
-	Interval() = default;
 };
 
 #pragma endregion
@@ -242,26 +133,24 @@ public:
 	int YFactor = 0;
 
 public:
-	Mesh& BuildMesh()
+	void BuildMesh(Mesh& mesh)
 	{
-		Mesh* rectangles = new Mesh();
-
 		if (SubAreas.size() == 0 || XIntervals.size() == 0 || YIntervals.size() == 0 || XFactor == 0 || YFactor == 0)
 			throw new std::exception("ERROR! Area data is not initialized");
 
 		for (auto& xInt : XIntervals)
 			for (auto& yInt : YIntervals)
 			{
-				for (int i = 0; i < xInt.splitter.pointsCount - 1; i++)
+				for (int i = 0; i < xInt.pointsCount - 1; i++)
 				{
-					for (int j = 0; j < yInt.splitter.pointsCount - 1; j++)
+					for (int j = 0; j < yInt.pointsCount - 1; j++)
 					{
 						Rectangle rect;
 
-						rect.x1 = xInt.splitter[i];
-						rect.x2 = xInt.splitter[i + 1];
-						rect.y1 = yInt.splitter[j];
-						rect.y2 = yInt.splitter[j + 1];
+						rect.x1 = xInt[i];
+						rect.x2 = xInt[i + 1];
+						rect.y1 = yInt[j];
+						rect.y2 = yInt[j + 1];
 
 						auto subarea = FindSubArea(xInt, yInt);
 
@@ -269,13 +158,10 @@ public:
 						rect.J = subarea->J;
 						rect.material = subarea->material;
 
-						rectangles->push_back(rect);
+						mesh.push_back(rect);
 					}
 				}
 			}
-
-		Clear();
-		return *rectangles;
 	}
 
 	void Clear()
@@ -293,6 +179,7 @@ public:
 private:
 	SubArea* FindSubArea(Interval& x, Interval& y)
 	{
+		// Check if any subarea is the rect with X and Y sizes
 		for (auto& sub : SubAreas)
 		{
 			if (MathUtility::IsEqual(x.a, sub.x1) && MathUtility::IsEqual(x.b, sub.x2))
@@ -300,6 +187,7 @@ private:
 					return &sub;
 		}
 
+		// Check if any subarea contains rect with X and Y sizes
 		for (auto& sub : SubAreas)
 		{
 			if (MathUtility::IsEqualOrLess(sub.x1, x.a) && MathUtility::IsEqualOrLess(x.b, sub.x2))
@@ -377,7 +265,7 @@ private:
 				{
 					double step = 0.0;
 					file >> step;
-					intervals[k].initStep = step;
+					intervals[k].firstStep = step;
 					break;
 				}
 				case 2:
@@ -391,7 +279,7 @@ private:
 				{
 					int dir = 0;
 					file >> dir;
-					intervals[k].qDirection = dir;
+					intervals[k].dir = dir;
 					break;
 				}
 
@@ -401,7 +289,5 @@ private:
 			}
 		}
 
-		for (auto& i : intervals)
-			i.splitter = IntervalSplitter(i.a, i.b, i.initStep, i.q, i.qDirection);
 	}
 };

@@ -10,15 +10,14 @@ int main()
 
 	Interval i;
 	i.a = 0;
-	i.b = 16;
-	i.initStep = 1;
+	i.b = 9.5;
+	i.firstStep = 1;
 	i.q = 2;
-	i.qDirection = 1;
+	i.dir = 1;
+	i.Split();
 
-	i.splitter = IntervalSplitter(i.a, i.b, i.initStep, i.q, i.qDirection);
-
-	for (int k = 0; k < i.splitter.pointsCount; k++)
-		std::cout << i.splitter[k] << "\t";
+	for (int k = 0; k < i.pointsCount; k++)
+		std::cout << i[k] << "\t";
 
 	return 0;
 }
