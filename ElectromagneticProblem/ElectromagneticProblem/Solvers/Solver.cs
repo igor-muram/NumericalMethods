@@ -8,6 +8,7 @@ namespace ElectromagneticProblem.Solvers
 
    public interface ISolver
    {
+      public SolverTypes SolverType { get; }
       public int MaxIterCount { get; set; }
       public int IterCount { get; set; }
       public double Eps { get; set; }
@@ -18,6 +19,8 @@ namespace ElectromagneticProblem.Solvers
 
    public class LOSLLT : ISolver
    {
+      public SolverTypes SolverType => SolverTypes.LOSLLT;
+
       public int MaxIterCount { get; set; } = 100000;
       public int IterCount { get; set; } = 0;
 
@@ -35,7 +38,7 @@ namespace ElectromagneticProblem.Solvers
 
       RawMatrix LLT { get; set; }
 
-      struct RawMatrix
+		struct RawMatrix
       {
          public int N { get; set; }
          public double[] DI { get; set; }
@@ -228,6 +231,8 @@ namespace ElectromagneticProblem.Solvers
 
    public class LOSLU : ISolver
    {
+      public SolverTypes SolverType => SolverTypes.LOSLU;
+
       public int MaxIterCount { get; set; } = 100000;
       public int IterCount { get; set; } = 0;
 

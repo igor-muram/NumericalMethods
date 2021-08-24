@@ -21,12 +21,20 @@ namespace MathUtility
 				throw new Exception("vectors have different length");
 
 			double result = 0.0;
-			int N = a.Length;
-
-			for (int i = 0; i < N; i++)
+			for (int i = 0; i < a.Length; i++)
 				result += a[i] * b[i];
 
 			return result;
+		}
+
+		public static double Norm(double[] a)
+		{
+			double result = 0.0;
+
+			foreach (var value in a)
+				result += value * value;
+
+			return Math.Sqrt(result);
 		}
 	}
 }

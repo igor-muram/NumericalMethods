@@ -17,6 +17,7 @@ namespace ElectromagneticProblem.Matrix
 		public void Set(int i, int j, double value);
 		public void Add(int i, int j, double value);
 		public void Multiply(double[] vector, double[] result);
+		public void Clear();
 	}
 
 	public class SymmetricSparseMatrix : IMatrix
@@ -102,6 +103,13 @@ namespace ElectromagneticProblem.Matrix
 					result[j] += AL[k] * vector[i];
 				}
 			}
+		}
+
+		public void Clear()
+		{
+			Array.Fill(DI, 0.0);
+			Array.Fill(AL, 0.0);
+			Array.Fill(AU, 0.0);
 		}
 	}
 }

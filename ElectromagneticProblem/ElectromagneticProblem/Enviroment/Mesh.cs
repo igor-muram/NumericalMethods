@@ -6,12 +6,11 @@ namespace ElectromagneticProblem.Enviroment
 	public class FiniteElement
 	{
 		public int[] Vertices;
-		public Material Material;
+		public IMaterial Material;
 
 		public FiniteElement(int verticesNum)
 		{
 			Vertices = new int[verticesNum];
-			Material = new Material();
 		}
 
 		public FiniteElement(int verticesNum, Material material)

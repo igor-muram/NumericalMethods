@@ -6,23 +6,46 @@ using System.Linq;
 using MathUtility;
 using ElectromagneticProblem.FEM;
 using System.Collections;
+using ElectromagneticProblem.Splines;
 
 namespace ElectromagneticProblem.Enviroment
 {
-   public struct Material
+   public interface IMaterial
    {
-      public int id;
-
-      public double J;
-      public double mu;
+      public Func<double, double> Mu { get; set; }
+      public double J { get; set; }
    }
+
+	public class Material : IMaterial
+	{
+      public Material(double mu, double J)
+		{
+         Mu = (double B) => mu;
+         this.J = J;
+		}
+
+		public Func<double, double> Mu { get; set; }
+		public double J { get; set; }
+	}
+
+	public class SplineMaterial : IMaterial
+   {
+      public SplineMaterial(ISpline spline, double J)
+      {
+         Mu = (double B) => spline.GetValue(B);
+         this.J = J;
+      }
+
+		public Func<double, double> Mu { get; set; }
+		public double J { get; set; }
+	}
 
    public class Subarea
    {
       public double x1, x2;
       public double y1, y2;
 
-      public Material material;
+      public IMaterial material;
 
       public static Subarea Parse(string data)
       {
@@ -39,8 +62,7 @@ namespace ElectromagneticProblem.Enviroment
 
          mu *= 4 * Math.PI * 1.0e-7;
 
-         subarea.material = new Material { id = id, J = J, mu = mu };
-
+         subarea.material = new Material(mu, J);
          return subarea;
       }
 
@@ -78,6 +100,7 @@ namespace ElectromagneticProblem.Enviroment
             if (!isUniform)
                this.q = Math.Pow(q, 1.0 / Math.Pow(2.0, factor));
 			}
+
 
          Split();
       }
