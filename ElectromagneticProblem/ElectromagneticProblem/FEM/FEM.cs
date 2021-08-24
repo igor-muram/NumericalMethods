@@ -285,9 +285,6 @@ namespace ElectromagneticProblem.FEM
 			Problem problem = new Problem(new ProblemInfo { Mesh = LinearMesh, SolverType = Solver.SolverType });
 			problem.Solve();
 
-			Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
-			Console.WriteLine("|B|: " + problem.GetValueB(new Point(-1.53E-02, 3.50E-03)));
-
 			Q = problem.Q;
 
 			MatrixPortrait MP = new MatrixPortrait();
@@ -311,18 +308,11 @@ namespace ElectromagneticProblem.FEM
 				if (DoOptimization)
 				{
 					double w = OptimizeQ(A, B);
-
 					for (int i = 0; i < Q.Length; i++)
 						Q[i] = Q[i] * w + prevQ[i] * (1.0 - w);
 				}
 
 				QDiff = VectorUtils.RelativeError(prevQ, Q);
-
-				// Calculate diff
-				NSB.Build(A, B, Q);
-				A.Multiply(Q, Aq);
-
-				Diff = VectorUtils.RelativeError(Aq, B);
 				CurrentIter++;
 
 				Console.WriteLine($"Iter: {CurrentIter}, Diff: {Diff}, QDiff: {QDiff}");
@@ -485,7 +475,7 @@ namespace ElectromagneticProblem.FEM
 				NSB.Build(A, B, relaxQ);
 				A.Multiply(relaxQ, Aq);
 
-				double value = VectorUtils.Error(Aq, B);
+				double value = VectorUtils.RelativeError(Aq, B);
 
 				A.Clear();
 				Array.Fill(Aq, 0.0);
@@ -494,7 +484,17 @@ namespace ElectromagneticProblem.FEM
 				return value;
 			};
 
-			return Optimization.GoldenRatio(f, 0.0, 1.0);
+			double w = 1.0;
+			double nextDiff = f(w);
+			while (nextDiff >= Diff)
+			{
+				w /= 2;
+				nextDiff = f(w);
+			}
+
+			Diff = nextDiff;
+
+			return w;
 		}
 	}
 
@@ -562,9 +562,6 @@ namespace ElectromagneticProblem.FEM
 		{
 			Problem problem = new Problem(new ProblemInfo { Mesh = LinearMesh, SolverType = Solver.SolverType });
 			problem.Solve();
-
-			Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
-			Console.WriteLine("|B|: " + problem.GetValueB(new Point(-1.53E-02, 3.50E-03)));
 
 			Q = problem.Q;
 
@@ -765,7 +762,7 @@ namespace ElectromagneticProblem.FEM
 				NSB.Build(A, B, relaxQ);
 				A.Multiply(relaxQ, Aq);
 
-				double value = VectorUtils.Error(Aq, B);
+				double value = VectorUtils.RelativeError(Aq, B);
 
 				A.Clear();
 				Array.Fill(Aq, 0.0);
@@ -774,7 +771,17 @@ namespace ElectromagneticProblem.FEM
 				return value;
 			};
 
-			return Optimization.GoldenRatio(f, 0.0, 1.0);
+			double w = 1.0;
+			double nextDiff = f(w);
+			while (nextDiff >= Diff)
+			{
+				w /= 2;
+				nextDiff = f(w);
+			}
+
+			Diff = nextDiff;
+
+			return w;
 		}
 	}
 }

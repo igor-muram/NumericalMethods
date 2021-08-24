@@ -175,7 +175,7 @@ namespace ElectromagneticProblem.SLAE
             AddToGlobalB(b, e, localB);
          }
 
-         AddFirstBoundary(A, b);
+        AddFirstBoundary(A, b);
       }
 
       void AddFirstBoundary(IMatrix A, double[] b)

@@ -29,22 +29,30 @@ namespace ElectromagneticProblem
                LinearMesh = linearMesh,
                NonlinearMesh = nonlinearMesh,
                SolverType = SolverTypes.LOSLLT,
-               Eps = 1.0e-7,
-               Delta = 1.0e-7,
-               MaxIters = 20,
-               DoOptimization = false
+               Eps = 0.01,
+               Delta = 1.0e-20,
+               MaxIters = 100,
+               DoOptimization = true 
             };
 
-            //NonlinearProblem problem = new NonlinearProblem(info);
-            SimpleIteration problem = new SimpleIteration(info);
+            NonlinearProblem problem = new NonlinearProblem(info);
             problem.Solve();
 
             Console.WriteLine();
             Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
-           // Console.WriteLine("|B|: " + problem.GetValueB(new Point(-1.53E-02, 3.50E-03)));
-            Console.WriteLine();
             Console.WriteLine("Az: " + problem.GetValueA(new Point(0.0044, 0.0015)));
-           // Console.WriteLine("|B|: " + problem.GetValueB(new Point(0.0044, 0.0015)));
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+
+            //info.DoOptimization = false;
+            //SimpleIteration problem1 = new SimpleIteration(info);
+            //problem1.Solve();
+
+            //Console.WriteLine();
+            //Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
+            //Console.WriteLine();
+            //Console.WriteLine("Az: " + problem.GetValueA(new Point(0.0044, 0.0015)));
          }
       
          Console.ReadKey();

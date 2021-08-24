@@ -225,7 +225,7 @@ namespace ElectromagneticProblem.Enviroment
 
             Interval xInterval = null;
             foreach (var xInt in XIntervals)
-               if (x1 >= xInt.a && x2 <= xInt.b)
+               if (FloatComparision.IsEqualOrGreater(x1, xInt.a) && FloatComparision.IsEqualOrLess(x2, xInt.b))
                {
                   xInterval = xInt;
                   break;
@@ -233,7 +233,7 @@ namespace ElectromagneticProblem.Enviroment
 
             Interval yInterval = null;
             foreach (var yInt in YIntervals)
-               if (y1 >= yInt.a && y2 <= yInt.b)
+               if (FloatComparision.IsEqualOrGreater(y1,yInt.a) && FloatComparision.IsEqualOrLess(y2, yInt.b))
                {
                   yInterval = yInt;
                   break;
