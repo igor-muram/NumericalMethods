@@ -45,7 +45,7 @@ struct Interval
 	void Split()
 	{
 		if (MathUtility::IsEqual(a, b) || MathUtility::IsEqual(q, 0.0) || dir == 0)
-			throw new std::exception("ERROR! Interval parameters are not initialized");
+			throw new std::exception("ERROR! Interval parameters are invalid");
 
 		isUniform = q == 1.0;
 

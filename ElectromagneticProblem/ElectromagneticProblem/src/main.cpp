@@ -4,9 +4,10 @@
 
 int main()
 {
-	//Area area = Area::FromFile("input/grid.txt");
+	Area area = Area::FromFile("input/grid.txt");
 
-	//Mesh mesh = area.BuildMesh();
+	Mesh mesh;
+	area.BuildMesh(mesh);
 
 	Interval i;
 	i.a = 0;
