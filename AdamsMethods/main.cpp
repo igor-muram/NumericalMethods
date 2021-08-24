@@ -24,7 +24,7 @@ double Runge(double a, double h, double y0)
 	return y0 + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
 }
 
-void ExplicitAdams3(double a, double b, double h, double y0)
+void ExplicitAdams3Order(double a, double b, double h, double y0)
 {
 	int n = (b - a) / h;
 
@@ -60,7 +60,7 @@ void ExplicitAdams3(double a, double b, double h, double y0)
 	}
 }
 
-void ExplicitAdams4(double a, double b, double h, double y0)
+void ExplicitAdams4Order(double a, double b, double h, double y0)
 {
 	int n = (b - a) / h;
 
@@ -97,7 +97,7 @@ void ExplicitAdams4(double a, double b, double h, double y0)
 	}
 }
 
-void ImplicitAdams3(double a, double b, double h, double y0, double eps)
+void ImplicitAdams3Order(double a, double b, double h, double y0, double eps)
 {
 	int n = (b - a) / h;
 
@@ -134,7 +134,7 @@ void ImplicitAdams3(double a, double b, double h, double y0, double eps)
 	}
 }
 
-void ImplicitAdams4(double a, double b, double h, double y0, double eps)
+void ImplicitAdams4Order(double a, double b, double h, double y0, double eps)
 {
 	int n = (b - a) / h;
 
