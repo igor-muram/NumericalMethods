@@ -2,7 +2,6 @@
 using ElectromagneticProblem.Matrix;
 using ElectromagneticProblem.SLAE;
 using ElectromagneticProblem.Solvers;
-using ElectromagneticProblem.Splines;
 using MathUtility;
 using System;
 
@@ -206,26 +205,37 @@ namespace ElectromagneticProblem.FEM
 		}
 	}
 
+	public struct NonlinearProblemInfo
+	{
+		public Mesh LinearMesh;
+		public Mesh NonlinearMesh;
+		public SolverTypes SolverType;
+	}
+
 	class NonlinearProblem
 	{
 		public double[] Q { get; set; } = null;
+		public Mesh LinearMesh { get; set; } = null;
 		public Mesh Mesh { get; set; } = null;
 		public ISolver Solver { get; set; } = null;
 
 		public double Eps { get; set; } = 1.0e-12;
-		public int MaxIter { get; set; } = 100;
+		public int MaxIter { get; set; } = 30;
 		public int CurrentIter { get; set; } = 0;
 		public double Diff { get; set; } = 1.0;
+		public double W { get; set; } = 0.5;
 
+		double[] prevQ;
 		PortraitBuilder PB = null;
 		NewtonSLAEBuilder SB = null;
 
-		public NonlinearProblem(ProblemInfo info, ISpline spline)
+		public NonlinearProblem(NonlinearProblemInfo info)
 		{
-			Mesh = info.Mesh;
+			LinearMesh = info.LinearMesh;
+			Mesh = info.NonlinearMesh;
 
 			PB = new PortraitBuilder(Mesh);
-			SB = new NewtonSLAEBuilder(Mesh, spline);
+			SB = new NewtonSLAEBuilder(Mesh);
 
 			switch (info.SolverType)
 			{
@@ -250,7 +260,7 @@ namespace ElectromagneticProblem.FEM
 
 		public void Solve()
 		{
-			Problem problem = new Problem(new ProblemInfo { Mesh = Mesh, SolverType = Solver.SolverType });
+			Problem problem = new Problem(new ProblemInfo { Mesh = LinearMesh, SolverType = Solver.SolverType });
 			problem.Solve();
 
 			Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
@@ -268,7 +278,11 @@ namespace ElectromagneticProblem.FEM
 			while (CurrentIter < MaxIter && Diff >= Eps)
 			{
 				SB.Build(A, B, Q);
+				prevQ = Q;
 				Q = Solver.Solve(A, B);
+
+				for (int i = 0; i < Q.Length; i++)
+					Q[i] = Q[i] * W + (1 - W) * prevQ[i];
 
 				SB.Build(A, B, Q);
 
@@ -278,8 +292,11 @@ namespace ElectromagneticProblem.FEM
 				for (int i = 0; i < Aq.Length; i++)
 					Aq[i] -= B[i];
 
-				Diff = VectorUtils.Norm(Aq) / VectorUtils.Norm(B);
+				Console.WriteLine($"Iter: {CurrentIter}, Diff: {Diff}");
 
+				Diff = VectorUtils.Norm(Aq) / VectorUtils.Norm(B);
+				CurrentIter++;
+				
 				A.Clear();
 				Array.Fill(B, 0.0);
 			}

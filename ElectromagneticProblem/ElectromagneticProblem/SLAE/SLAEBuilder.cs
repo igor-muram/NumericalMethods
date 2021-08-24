@@ -2,7 +2,6 @@
 using ElectromagneticProblem.Enviroment;
 using ElectromagneticProblem.FEM;
 using ElectromagneticProblem.Matrix;
-using ElectromagneticProblem.Splines;
 using MathUtility;
 
 namespace ElectromagneticProblem.SLAE
@@ -158,12 +157,9 @@ namespace ElectromagneticProblem.SLAE
 
       double[] q = null;
 
-      ISpline muSpline = null;
-
-      public NewtonSLAEBuilder(Mesh mesh, ISpline muSpline)
+      public NewtonSLAEBuilder(Mesh mesh)
       {
          Mesh = mesh;
-         this.muSpline = muSpline;
       }
 
       public void Build(IMatrix A, double[] b, double[] q)
@@ -202,8 +198,8 @@ namespace ElectromagneticProblem.SLAE
 
          double mes = hx * hy;
          double avgB = GetAverageB(e);
-         double mu = muSpline.GetValue(avgB);
-         double muDer = muSpline.GetDerivative(avgB);
+         double mu = e.Material.Mu(avgB);
+         double muDer = e.Material.MuDer(avgB);
 
          double[,] G = new double[FEMParameters.BasisSize, FEMParameters.BasisSize];
 
@@ -214,22 +210,25 @@ namespace ElectromagneticProblem.SLAE
             for (int j = 0; j < FEMParameters.BasisSize; j++)
                G[i, j] = lambda * P[i, j];
 
-         // Calculate sums
-         double der = -muDer / (mu * mu * 2 * avgB);
+         if (!FloatComparision.IsEqual(0.0, muDer))
+         {
+            // Calculate sums
+            double der = -muDer / (mu * mu * 2 * avgB);
 
-         for (int i = 0; i < FEMParameters.BasisSize; i++)
-            for (int r = 0; r < FEMParameters.BasisSize; r++)
-            {
-               double sum1 = 0;
-               for (int s = 0; s < FEMParameters.BasisSize; s++)
-                  sum1 += P[i, s] * q[e[s]];
+            for (int i = 0; i < FEMParameters.BasisSize; i++)
+               for (int r = 0; r < FEMParameters.BasisSize; r++)
+               {
+                  double sum1 = 0;
+                  for (int s = 0; s < FEMParameters.BasisSize; s++)
+                     sum1 += P[i, s] * q[e[s]];
 
-               double sum2 = 0;
-               for (int p = 0; p < FEMParameters.BasisSize; p++)
-                  sum2 += P[r, p] * q[e[p]];
+                  double sum2 = 0;
+                  for (int p = 0; p < FEMParameters.BasisSize; p++)
+                     sum2 += P[r, p] * q[e[p]];
 
-               G[i, r] += 2.0 * der * sum1 * sum2 / mes;
-            }
+                  G[i, r] += 2.0 * der * sum1 * sum2 / mes;
+               }
+         }
 
          return G;
       }
@@ -245,8 +244,8 @@ namespace ElectromagneticProblem.SLAE
          double mes = hx * hy;
 
          double avgB = GetAverageB(e);
-         double mu = muSpline.GetValue(avgB);
-         double muDer = muSpline.GetDerivative(avgB);
+         double mu = e.Material.Mu(avgB);
+         double muDer = e.Material.MuDer(avgB);
 
          double[] B = new double[FEMParameters.BasisSize];
          double J = e.Material.J;
@@ -259,27 +258,30 @@ namespace ElectromagneticProblem.SLAE
          for (int i = 0; i < FEMParameters.BasisSize; i++)
             B[i] *= hx * hy / 36;
 
-         double der = -muDer / (mu * mu * 2 * avgB);
+         if (!FloatComparision.IsEqual(0.0, muDer))
+         {
+            double der = -muDer / (mu * mu * 2 * avgB);
 
-         // Calculate sum
-         for (int i = 0; i < FEMParameters.BasisSize; i++)
-			{
-            double sum1 = 0;
-            for (int s = 0; s < FEMParameters.BasisSize; s++)
-               sum1 += P[i, s] * q[e[s]];
+            // Calculate sum
+            for (int i = 0; i < FEMParameters.BasisSize; i++)
+            {
+               double sum1 = 0;
+               for (int s = 0; s < FEMParameters.BasisSize; s++)
+                  sum1 += P[i, s] * q[e[s]];
 
-            double sum2 = 0;
-            for (int r = 0; r < FEMParameters.BasisSize; r++)
-				{
-               double sum = 0;
-               for (int p = 0; p < FEMParameters.BasisSize; p++)
-                  sum += P[r, p] * q[e[p]];
+               double sum2 = 0;
+               for (int r = 0; r < FEMParameters.BasisSize; r++)
+               {
+                  double sum = 0;
+                  for (int p = 0; p < FEMParameters.BasisSize; p++)
+                     sum += P[r, p] * q[e[p]];
 
-               sum2 += q[e[r]] * sum;
-				}
+                  sum2 += q[e[r]] * sum;
+               }
 
-            B[i] += 2.0 * der * sum1 * sum2 / mes;
-			}
+               B[i] += 2.0 * der * sum1 * sum2 / mes;
+            }
+         }
 
          return B;
       }

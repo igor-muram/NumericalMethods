@@ -12,33 +12,43 @@ namespace ElectromagneticProblem.Enviroment
 {
    public interface IMaterial
    {
+      public int ID { get; set; }
       public Func<double, double> Mu { get; set; }
+      public Func<double, double> MuDer { get; set; }
       public double J { get; set; }
    }
 
 	public class Material : IMaterial
 	{
-      public Material(double mu, double J)
+      public Material(int id, double mu, double J)
 		{
-         Mu = (double B) => mu;
+         ID = id;
+         Mu = (double B) => 4 * Math.PI * 1.0e-7 * mu;
+         MuDer = (double B) => 0.0;
          this.J = J;
 		}
 
+		public int ID { get; set; }
 		public Func<double, double> Mu { get; set; }
 		public double J { get; set; }
+		public Func<double, double> MuDer { get; set; }
 	}
 
 	public class SplineMaterial : IMaterial
    {
-      public SplineMaterial(ISpline spline, double J)
+      public SplineMaterial(int id, ISpline mu, double J)
       {
-         Mu = (double B) => spline.GetValue(B);
+         ID = id;
+         Mu = (double B) => 4 * Math.PI * 1.0e-7 * mu.GetValue(B);
+         MuDer = (double B) => 4 * Math.PI * 1.0e-7 * mu.GetDerivative(B);
          this.J = J;
       }
 
+      public int ID { get; set; }
 		public Func<double, double> Mu { get; set; }
 		public double J { get; set; }
-	}
+		public Func<double, double> MuDer { get; set; }
+   }
 
    public class Subarea
    {
@@ -60,9 +70,7 @@ namespace ElectromagneticProblem.Enviroment
          double J = double.Parse(tokens[5], NumberStyles.Any, CultureInfo.InvariantCulture);
          int id = int.Parse(tokens[6], NumberStyles.Any, CultureInfo.InvariantCulture);
 
-         mu *= 4 * Math.PI * 1.0e-7;
-
-         subarea.material = new Material(mu, J);
+         subarea.material = new Material(id, mu, J);
          return subarea;
       }
 
@@ -234,7 +242,8 @@ namespace ElectromagneticProblem.Enviroment
             if (xInterval == null || yInterval == null)
                throw new Exception("ERROR! Failed to find intervals for finite element");
 
-            e.Material = FindSubarea(xInterval, yInterval).material;
+            Subarea subarea = FindSubarea(xInterval, yInterval);
+            e.Material = subarea.material;
          }
 
          mesh.FirstBoundary = new FirstNullBoundary();
@@ -281,7 +290,6 @@ namespace ElectromagneticProblem.Enviroment
 
       Subarea FindSubarea(Interval x, Interval y)
       {
-
          foreach (var layer in Layers)
          {
             foreach (var subarea in layer)
@@ -352,6 +360,24 @@ namespace ElectromagneticProblem.Enviroment
          }
 
          return intervals;
+      }
+
+      public void SetSplinesForMaterials(ISpline spline)
+		{
+         foreach (var subarea in Subareas)
+            if (subarea.material.ID == -1)
+            {
+               double J = subarea.material.J;
+               subarea.material = new SplineMaterial(-1, spline, J);
+            }
+
+         foreach (var layer in Layers)
+            foreach (var subarea in layer)
+               if (subarea.material.ID == -1)
+               {
+                  double J = subarea.material.J;
+                  subarea.material = new SplineMaterial(-1, spline, J);
+               }
       }
 
       Area() { }
