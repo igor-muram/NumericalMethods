@@ -4,6 +4,7 @@ using System;
 using ElectromagneticProblem.Solvers;
 using ElectromagneticProblem.Splines;
 using MathUtility;
+using ElectromagneticProblem.Matrix;
 
 namespace ElectromagneticProblem
 {
@@ -27,8 +28,8 @@ namespace ElectromagneticProblem
             NonlinearProblemInfo info = new NonlinearProblemInfo
             {
                LinearMesh = linearMesh,
-               NonlinearMesh = nonlinearMesh,
-               SolverType = SolverTypes.LOSLLT,
+               NonlinearMesh = linearMesh,
+               SolverType = SolverTypes.CGMLLT,
                Eps = 0.01,
                Delta = 1.0e-20,
                MaxIters = 100,
@@ -41,20 +42,8 @@ namespace ElectromagneticProblem
             Console.WriteLine();
             Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
             Console.WriteLine("Az: " + problem.GetValueA(new Point(0.0044, 0.0015)));
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-
-            //info.DoOptimization = false;
-            //SimpleIteration problem1 = new SimpleIteration(info);
-            //problem1.Solve();
-
-            //Console.WriteLine();
-            //Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
-            //Console.WriteLine();
-            //Console.WriteLine("Az: " + problem.GetValueA(new Point(0.0044, 0.0015)));
          }
-      
+         
          Console.ReadKey();
       }
    }
