@@ -36,5 +36,16 @@ namespace MathUtility
 
 			return Math.Sqrt(result);
 		}
+
+		public static double RelativeError(double[] a, double[] b)
+		{
+			double result = 0.0;
+			int N = a.Length;
+
+			for (int i = 0; i < N; i++)
+				result += (a[i] - b[i]) * (a[i] - b[i]);
+
+			return Math.Sqrt(result) / Norm(b);
+		}
 	}
 }

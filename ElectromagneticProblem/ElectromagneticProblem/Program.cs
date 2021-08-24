@@ -16,7 +16,7 @@ namespace ElectromagneticProblem
 
          if (linearArea != null && nonlinearArea != null)
          {
-            CubicHermiteSpline spline = CubicHermiteSpline.FromFile(@"C:\repos\NumericalMethods\ElectromagneticProblem\ElectromagneticProblem\input\mu.txt");
+            MuSpline spline = MuSpline.FromFile(@"C:\repos\NumericalMethods\ElectromagneticProblem\ElectromagneticProblem\input\mu.txt");
             nonlinearArea.SetSplinesForMaterials(spline);
 
             Mesh linearMesh = new Mesh();
@@ -24,18 +24,27 @@ namespace ElectromagneticProblem
             linearArea.BuildMesh(linearMesh);
             nonlinearArea.BuildMesh(nonlinearMesh);
 
-            NonlinearProblemInfo info = new NonlinearProblemInfo();
-            info.LinearMesh = linearMesh;
-            info.NonlinearMesh = nonlinearMesh;
-            info.SolverType = SolverTypes.LOSLLT;
+            NonlinearProblemInfo info = new NonlinearProblemInfo
+            {
+               LinearMesh = linearMesh,
+               NonlinearMesh = nonlinearMesh,
+               SolverType = SolverTypes.LOSLLT,
+               Eps = 1.0e-7,
+               Delta = 1.0e-7,
+               MaxIters = 20,
+               DoOptimization = false
+            };
 
-            NonlinearProblem problem = new NonlinearProblem(info);
+            //NonlinearProblem problem = new NonlinearProblem(info);
+            SimpleIteration problem = new SimpleIteration(info);
             problem.Solve();
+
+            Console.WriteLine();
             Console.WriteLine("Az: " + problem.GetValueA(new Point(-1.53E-02, 3.50E-03)));
-            Console.WriteLine("|B|: " + problem.GetValueB(new Point(-1.53E-02, 3.50E-03)));
+           // Console.WriteLine("|B|: " + problem.GetValueB(new Point(-1.53E-02, 3.50E-03)));
             Console.WriteLine();
             Console.WriteLine("Az: " + problem.GetValueA(new Point(0.0044, 0.0015)));
-            Console.WriteLine("|B|: " + problem.GetValueB(new Point(0.0044, 0.0015)));
+           // Console.WriteLine("|B|: " + problem.GetValueB(new Point(0.0044, 0.0015)));
          }
       
          Console.ReadKey();
