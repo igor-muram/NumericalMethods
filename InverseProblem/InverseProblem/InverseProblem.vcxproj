@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\CSV.h" />
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Solvers.cpp" />
   </ItemGroup>

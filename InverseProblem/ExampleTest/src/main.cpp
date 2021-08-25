@@ -1,8 +1,11 @@
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 #include <vector>
+#include <sstream>
 
 #include "Problem.h"
+#include "CSV.h"
 
 const int ReceiversCount = 200;
 
@@ -39,6 +42,8 @@ void CreateRealParameters(std::vector<Element>& real_elements, std::vector<Rect>
 	real_elements[50].value = 1.0;
 	real_elements[69].value = 1.0;
 	real_elements[70].value = 2.0;
+
+	CSV::PrintElements("RealValues.csv", real_elements, ElementsCountX, ElementsCountZ);
 }
 
 void CreateInitialParameters(std::vector<Element>& init_parameters, std::vector<Rect>& grid)
@@ -79,6 +84,7 @@ void TestWithRegularization()
 	std::vector<Element> changed_elements;
 	CreateInitialParameters(changed_elements, grid);
 
+	
 	double alpha = 1.0e-20;
 	for (int i = 0; i < 15; i++)
 	{
@@ -106,6 +112,11 @@ void TestWithRegularization()
 			changed_elements[70].value << std::endl;
 
 		std::cout << std::endl;
+
+		std::stringstream stream;
+		stream << "Result (" << alpha << ").csv";
+		CSV::PrintElements(stream.str(), { changed_elements, ElementsCountX, ElementsCountZ, alpha,  Difference(new_g, real_g) });
+
 
 		// Change alpha
 		alpha *= 10.0;
