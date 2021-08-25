@@ -10,41 +10,42 @@ namespace ExampleTest
 {
 	class Program
 	{
-		static double sigma = 0.1;
+		static double sigma = 1.0;
 
 		static void FEMTest()
 		{
 			Dictionary<int, Material> materials = new Dictionary<int, Material>()
 			{
-				{ 0, new Material(2 * Math.PI * sigma) },
-				{ 1, new Material(2 * Math.PI * sigma) }
+				{ 0, new Material(sigma) },
+				{ 1, new Material(sigma) }
 			};
 
 			Dictionary<AreaSide, (ConditionType, Func<double, double, double>)> conditions = new Dictionary<AreaSide, (ConditionType, Func<double, double, double>)>()
 			{
-				{ AreaSide.Top,		(ConditionType.First, (double r, double z) => r * r) },
-				{ AreaSide.Left,		(ConditionType.First, (double r, double z) => r * r) },
-				{ AreaSide.Bottom,	(ConditionType.First, (double r, double z) => r * r) },
-				{ AreaSide.Right,		(ConditionType.First, (double r, double z) => r * r) }
+				{ AreaSide.Top,		(ConditionType.First, (double r, double z) => r * r * z) },
+				{ AreaSide.Left,		(ConditionType.First, (double r, double z) => r * r * z) },
+				{ AreaSide.Bottom,	(ConditionType.First, (double r, double z) =>  r * r * z) },
+				{ AreaSide.Right,		(ConditionType.First, (double r, double z) => r * r * z) }
 			};
 
-			AreaInfo areainfo = new AreaInfo();
+			ImprovedAreaInfo areainfo = new ImprovedAreaInfo();
 			areainfo.R0 = 0.0;
 			areainfo.Z0 = 0.0;
-			areainfo.Width = 1.0;
-			areainfo.FirstLayerHeight = 0.5;
-			areainfo.SecondLayerHeight = 0.5;
+			areainfo.Width = 100;
+			areainfo.FirstLayerHeight = 100;
+			areainfo.SecondLayerHeight = 300;
 
-			areainfo.HorizontalNodeCount = 10;
-			areainfo.FirstLayerVerticalNodeCount = 5;
-			areainfo.SecondLayerVerticalNodeCount = 5;
+			areainfo.HorizontalStartStep = 10;
+			areainfo.HorizontalCoefficient = 1.2;
+			areainfo.VerticalStartStep = 10;
+			areainfo.VerticalCoefficient = 1.2;
 			areainfo.Materials = materials;
 			areainfo.Conditions = conditions;
 
-			GridBuilder gb = new GridBuilder(areainfo);
+			ImprovedGridBuilder gb = new ImprovedGridBuilder(areainfo);
 			gb.Build();
 
-			Func<double, double, double> F = (double r, double z) => -sigma * 4.0;
+			Func<double, double, double> F = (double r, double z) => -sigma * 4.0 * z;
 
 			ProblemInfo info = new ProblemInfo();
 			info.Points = gb.Points.ToArray();
@@ -56,41 +57,42 @@ namespace ExampleTest
 			FEMrz fem = new FEMrz(info);
 			fem.Solve();
 
-			Console.WriteLine(fem.Info.Points[6].R);
-			Console.WriteLine(fem.Info.Points[6].Z);
-			Console.WriteLine(fem.Weights[6]);
+			Console.WriteLine(fem.Info.Points[35].R);
+			Console.WriteLine(fem.Info.Points[35].Z);
+			Console.WriteLine(fem.Weights[35]);
 		}
 
 		static void FEMDeltaTest()
 		{
 			Dictionary<int, Material> materials = new Dictionary<int, Material>()
 			{
-				{ 0, new Material(2 * Math.PI * sigma) },
-				{ 1, new Material(2 * Math.PI * sigma) }
+				{ 0, new Material(sigma) },
+				{ 1, new Material(sigma) }
 			};
 
 			Dictionary<AreaSide, (ConditionType, Func<double, double, double>)> Conditions = new Dictionary<AreaSide, (ConditionType, Func<double, double, double>)>()
 			{
-				{ AreaSide.Top,		(ConditionType.SecondNull, (double r, double z) => 0) },
-				{ AreaSide.Left,		(ConditionType.SecondNull, (double r, double z) => 0) },
+				{ AreaSide.Top,		(ConditionType.First, (double r, double z) => 0) },
+				{ AreaSide.Left,		(ConditionType.First, (double r, double z) => 0) },
 				{ AreaSide.Bottom,	(ConditionType.First, (double r, double z) => 0) },
-				{ AreaSide.Right,		(ConditionType.SecondNull, (double r, double z) => 0) }
+				{ AreaSide.Right,		(ConditionType.First, (double r, double z) => 0) }
 			};
 
-			AreaInfo areainfo = new AreaInfo();
+			ImprovedAreaInfo areainfo = new ImprovedAreaInfo();
 			areainfo.R0 = 0.0;
 			areainfo.Z0 = 0.0;
-			areainfo.Width = 1100;
-			areainfo.FirstLayerHeight = 100;
-			areainfo.SecondLayerHeight = 50000;
+			areainfo.Width = 25;
+			areainfo.FirstLayerHeight = 10;
+			areainfo.SecondLayerHeight = 30;
 
-			areainfo.HorizontalNodeCount = 10;
-			areainfo.FirstLayerVerticalNodeCount = 5;
-			areainfo.SecondLayerVerticalNodeCount = 100;
+			areainfo.HorizontalStartStep = 10;
+			areainfo.HorizontalCoefficient = 1.5;
+			areainfo.VerticalStartStep = 10;
+			areainfo.VerticalCoefficient = 1.5;
 			areainfo.Materials = materials;
 			areainfo.Conditions = Conditions;
 
-			GridBuilder gb = new GridBuilder(areainfo);
+			ImprovedGridBuilder gb = new ImprovedGridBuilder(areainfo);
 			gb.Build();
 
 			ProblemInfoDelta infoDelta = new ProblemInfoDelta();
@@ -106,9 +108,9 @@ namespace ExampleTest
 			FEMrzDelta femDelta = new FEMrzDelta(infoDelta);
 			femDelta.Solve();
 
-			Console.WriteLine(femDelta.Info.Points[6].R);
-			Console.WriteLine(femDelta.Info.Points[6].Z);
-			Console.WriteLine(femDelta.Weights[6]);
+			Console.WriteLine(femDelta.Info.Points[30].R);
+			Console.WriteLine(femDelta.Info.Points[30].Z);
+			Console.WriteLine(femDelta.Weights[30]);
 		}
 
 		static void InverseProblemTest()
@@ -154,7 +156,7 @@ namespace ExampleTest
 
 		static void Main(string[] args)
 		{
-			FEMDeltaTest();
+			FEMTest();
 		}
 	}
 }

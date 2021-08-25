@@ -1,4 +1,5 @@
 ﻿using MathUtilities;
+using System;
 
 namespace SlaeSolver
 {
@@ -21,10 +22,10 @@ namespace SlaeSolver
 		public IMatrix Matrix { get; set; } = null;
 		public double[] B { get; set; } = null;
 
-		public int MaxIterCount { get; set; } = 200000;
+		public int MaxIterCount { get; set; } = 20000;
 		public int IterCount { get; set; } = 0;
 
-		public double Eps { get; set; } = 1.0e-15;
+		public double Eps { get; set; } = 1.0e-7;
 		public double Difference { get; set; } = 0.0;
 
 		double[] Ax { get; set; } = null;
