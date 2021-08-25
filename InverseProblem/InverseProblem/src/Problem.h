@@ -271,15 +271,24 @@ bool CheckSmoothingCondition(std::vector<Element>& p, std::set<std::pair<int, in
 
 void ChangeGammas(std::vector<std::pair<double, int>>& gammaInfo, std::set<std::pair<int, int>>& badCondsCoords)
 {
-	//std::map<int, bool> alreadyChanged;
+	std::map<int, bool> changed;
 
 	for (auto& pair : badCondsCoords)
 	{
 		int i = pair.first;
 		int j = pair.second;
 		
-		gammaInfo[i].first *= 10.0;
-		gammaInfo[j].first *= 10.0;
+		if (!changed[i])
+		{
+			gammaInfo[i].first *= 10.0;
+			changed[i] = true;
+		}
+
+		if (!changed[j])
+		{
+			gammaInfo[j].first *= 10.0;
+			changed[j] = true;
+		}
 	}
 }
 
