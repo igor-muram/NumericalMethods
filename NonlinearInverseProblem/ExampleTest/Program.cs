@@ -5,12 +5,14 @@ using System;
 using System.Numerics;
 using NonlinearInverseProblem;
 using MathUtilities;
+using System.IO;
 
 namespace ExampleTest
 {
 	class Program
 	{
 		static double sigma = 1.0;
+		static double eps = 1.0e-11;
 
 		static void FEMTest()
 		{
@@ -234,49 +236,81 @@ namespace ExampleTest
 
 		static void InverseProblemTest()
 		{
-			Vector3 A = new Vector3(0.0f, 0.0f, 0.0f);
-			Vector3 B = new Vector3(100.0f, 0.0f, 0.0f);
-			double I = 1.0;
-
-			Source source = new Source(A, B, I);
-
-			Vector3 M1 = new Vector3(200.0f, 0.0f, 0.0f);
-			Vector3 N1 = new Vector3(300.0f, 0.0f, 0.0f);
-
-			Vector3 M2 = new Vector3(500.0f, 0.0f, 0.0f);
-			Vector3 N2 = new Vector3(600.0f, 0.0f, 0.0f);
-
-			Vector3 M3 = new Vector3(1000.0f, 0.0f, 0.0f);
-			Vector3 N3 = new Vector3(1100.0f, 0.0f, 0.0f);
-
-			List<Receiver> receivers = new List<Receiver>() { new Receiver(M1, N1), new Receiver(M2, N2), new Receiver(M3, N3) };
-
-			Problem.ProblemInfo info = new Problem.ProblemInfo();
-
-			double trueP = 100;
-			info.TrueV = Problem.DirectProblem(source, receivers, 0.01, 0.1, trueP, 2.0e-15);
-
-			double initialP = 20;
-			info.V = Problem.DirectProblem(source, receivers, 0.01, 0.1, initialP, 2.0e-15);
-
-			info.p = new double[1] { initialP };
-			info.Source = source;
-			info.Receivers = receivers;
-
-			double F = Problem.Functional(info.V, info.TrueV);
-
-			while (F > 1.0e-2)
+			using (StreamWriter stream = new StreamWriter("result.csv"))
 			{
-				double[] dp = Problem.InverseProblem(info);
-				for (int i = 0; i < dp.Length; i++)
-					info.p[i] += dp[i];
+				Vector3 A = new Vector3(0.0f, 0.0f, 0.0f);
+				Vector3 B = new Vector3(100.0f, 0.0f, 0.0f);
+				double I = 1.0;
 
-				Console.WriteLine($"{info.p[0]}\t{F}");
-				info.V = Problem.DirectProblem(source, receivers, 0.01, 0.1, info.p[0], 2.0e-15);
-				F = Problem.Functional(info.V, info.TrueV);
+				Source source = new Source(A, B, I);
+
+				Vector3 M1 = new Vector3(200.0f, 0.0f, 0.0f);
+				Vector3 N1 = new Vector3(300.0f, 0.0f, 0.0f);
+
+				Vector3 M2 = new Vector3(500.0f, 0.0f, 0.0f);
+				Vector3 N2 = new Vector3(600.0f, 0.0f, 0.0f);
+
+				Vector3 M3 = new Vector3(1000.0f, 0.0f, 0.0f);
+				Vector3 N3 = new Vector3(1100.0f, 0.0f, 0.0f);
+
+				List<Receiver> receivers = new List<Receiver>() { new Receiver(M1, N1), new Receiver(M2, N2), new Receiver(M3, N3) };
+
+				Problem.ProblemInfo info = new Problem.ProblemInfo();
+				info.Source = source;
+				info.Receivers = receivers;
+				info.sigma1 = 0.01;
+				info.sigma2 = 0.1;
+
+				// True parameter
+				double trueP = 200;
+				info.h = trueP;
+				Console.WriteLine("Start to solve problem for true parameter");
+				info.TrueV = Problem.DirectProblem(info, eps);
+				Console.WriteLine($"Values for parameter {trueP}: {info.TrueV[0]}, {info.TrueV[1]}, {info.TrueV[2]}");
+				Console.WriteLine();
+				stream.Write($"True parameter; {trueP}\n");
+				stream.Write($"True V; {info.TrueV[0]}; {info.TrueV[1]}; {info.TrueV[2]}\n");
+
+				// Initial parameter
+				double initialP = 197;
+				info.h = initialP;
+				Console.WriteLine("Start to solve problem for initial parameter");
+				info.V = Problem.DirectProblem(info, eps);
+				Console.WriteLine($"Values for parameter {initialP}: {info.V[0]}, {info.V[1]}, {info.V[2]}");
+				Console.WriteLine();
+				stream.Write($"Initial parameter; {initialP}\n"); 
+				stream.Write($"Initial V; {info.V[0]}; {info.V[1]}; {info.V[2]}\n");
+
+
+				// Initial Functional value
+				double F = Problem.Functional(info.V, info.TrueV);
+
+				// First table row
+				Console.WriteLine("Start to solve nonlinear inverse problem");
+				Console.WriteLine($"Fuctional value - {F}");
+				Console.WriteLine();
+
+				stream.Write("\nParameter; V1; V2; V3; F\n");
+				stream.Write($"{info.h}; {info.V[0]}; {info.V[1]}; {info.V[2]}; {F}\n");
+
+				int i = 0;
+				while (F > 1.0e-7 && i < 30)
+				{
+					double dh = Problem.InverseProblem(info, eps);
+					info.h += dh;
+
+					Console.WriteLine($"New h - {info.h}, New functional value - {F}");
+					Console.WriteLine();
+					info.V = Problem.DirectProblem(info, eps);
+					F = Problem.Functional(info.V, info.TrueV);
+
+					stream.Write($"{info.h}; {info.V[0]}; {info.V[1]}; {info.V[2]}; {F}\n");
+					i++;
+				}
+
+				Console.WriteLine($"Result h - {info.h}, Result functional value - {F}");
+				stream.Write($"{info.h}; {info.V[0]}; {info.V[1]}; {info.V[2]}; {F}\n");
 			}
-
-			Console.WriteLine($"{info.p[0]}\t{F}");
 		}
 
 		static void Main(string[] args)
