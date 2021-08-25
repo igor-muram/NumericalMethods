@@ -2,9 +2,9 @@
 using FEM;
 using System.Collections.Generic;
 using System;
-using MathUtilities;
 using System.Numerics;
 using NonlinearInverseProblem;
+using MathUtilities;
 
 namespace ExampleTest
 {
@@ -24,7 +24,7 @@ namespace ExampleTest
 			{
 				{ AreaSide.Top,		(ConditionType.First, (double r, double z) => r * r * z) },
 				{ AreaSide.Left,		(ConditionType.First, (double r, double z) => r * r * z) },
-				{ AreaSide.Bottom,	(ConditionType.First, (double r, double z) =>  r * r * z) },
+				{ AreaSide.Bottom,	(ConditionType.First, (double r, double z) => r * r * z) },
 				{ AreaSide.Right,		(ConditionType.First, (double r, double z) => r * r * z) }
 			};
 
@@ -72,8 +72,8 @@ namespace ExampleTest
 
 			Dictionary<AreaSide, (ConditionType, Func<double, double, double>)> Conditions = new Dictionary<AreaSide, (ConditionType, Func<double, double, double>)>()
 			{
-				{ AreaSide.Top,		(ConditionType.First, (double r, double z) => 0) },
-				{ AreaSide.Left,		(ConditionType.First, (double r, double z) => 0) },
+				{ AreaSide.Top,		(ConditionType.SecondNull, (double r, double z) => 0) },
+				{ AreaSide.Left,		(ConditionType.SecondNull, (double r, double z) => 0) },
 				{ AreaSide.Bottom,	(ConditionType.First, (double r, double z) => 0) },
 				{ AreaSide.Right,		(ConditionType.First, (double r, double z) => 0) }
 			};
@@ -81,14 +81,14 @@ namespace ExampleTest
 			ImprovedAreaInfo areainfo = new ImprovedAreaInfo();
 			areainfo.R0 = 0.0;
 			areainfo.Z0 = 0.0;
-			areainfo.Width = 25;
-			areainfo.FirstLayerHeight = 10;
-			areainfo.SecondLayerHeight = 30;
+			areainfo.Width = 10000;
+			areainfo.FirstLayerHeight = 100;
+			areainfo.SecondLayerHeight = 9900;
 
-			areainfo.HorizontalStartStep = 10;
-			areainfo.HorizontalCoefficient = 1.5;
-			areainfo.VerticalStartStep = 10;
-			areainfo.VerticalCoefficient = 1.5;
+			areainfo.HorizontalStartStep = 12.0;
+			areainfo.HorizontalCoefficient = 1.0;
+			areainfo.VerticalStartStep = 12.0;
+			areainfo.VerticalCoefficient = 1.0;
 			areainfo.Materials = materials;
 			areainfo.Conditions = Conditions;
 
@@ -106,11 +106,15 @@ namespace ExampleTest
 			infoDelta.SolverType = SolverTypes.LOSLU;
 
 			FEMrzDelta femDelta = new FEMrzDelta(infoDelta);
+			femDelta.Solver.Eps = 1.0e-11;
 			femDelta.Solve();
 
-			Console.WriteLine(femDelta.Info.Points[30].R);
-			Console.WriteLine(femDelta.Info.Points[30].Z);
-			Console.WriteLine(femDelta.Weights[30]);
+			Console.WriteLine();
+			Console.WriteLine(femDelta.U(new Point(1000, 0)));
+			Console.WriteLine();
+
+			Console.WriteLine(femDelta.Solver.Difference);
+			Console.WriteLine(femDelta.Solver.IterCount);
 		}
 
 		static void InverseProblemTest()
@@ -156,7 +160,7 @@ namespace ExampleTest
 
 		static void Main(string[] args)
 		{
-			FEMTest();
+			FEMDeltaTest();
 		}
 	}
 }

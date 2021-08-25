@@ -73,8 +73,8 @@ namespace NonlinearInverseProblem
 				B[i] = -value;
 			}
 
-			CGM solver = new CGM(A, B);
-			return solver.Solve();
+			LOSLU solver = new LOSLU();
+			return solver.Solve(A, B);
 		}
 
 		public static double Functional(double[] V, double[] TrueV)

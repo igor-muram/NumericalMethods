@@ -7,33 +7,29 @@ namespace SlaeSolver
 
 	public interface ISolver
 	{
-		public IMatrix Matrix { get; set; }
-		public double[] B { get; set; }
 		public int MaxIterCount { get; set; }
 		public int IterCount { get; set; }
 		public double Eps { get; set; }
 		public double Difference { get; set; }
 
-		public double[] Solve();
+		public double[] Solve(IMatrix matrix, double[] b);
 	}
 
 	public class LOSLU : ISolver
 	{
-		public IMatrix Matrix { get; set; } = null;
-		public double[] B { get; set; } = null;
-
 		public int MaxIterCount { get; set; } = 20000;
 		public int IterCount { get; set; } = 0;
 
-		public double Eps { get; set; } = 1.0e-7;
+		public double Eps { get; set; } = 1.0e-15;
 		public double Difference { get; set; } = 0.0;
+
+		int N { get; set; } = 0;
 
 		double[] Ax { get; set; } = null;
 		double[] r { get; set; } = null;
 		double[] z { get; set; } = null;
 		double[] p { get; set; } = null;
 		double[] temp { get; set; } = null;
-		int N { get; set; } = 0;
 
 		RawMatrix LU { get; set; }
 
@@ -47,27 +43,16 @@ namespace SlaeSolver
 			public int[] JA { get; set; }
 		}
 
-		public LOSLU(IMatrix matrix, double[] b)
+		public double[] Solve(IMatrix matrix, double[] B)
 		{
 			N = matrix.N;
-			Matrix = matrix;
-			B = b;
+			InitAuxVectors(N);
+			LUFactorization(matrix);
 
-			Ax = new double[N];
-			r = new double[N];
-			z = new double[N];
-			p = new double[N];
-			temp = new double[N];
-
-			LUFactorization();
-		}
-
-		public double[] Solve()
-		{
 			double[] x = new double[N];
 
 			// Calculate r0
-			Matrix.Multiply(x, Ax);
+			matrix.Multiply(x, Ax);
 			for (int i = 0; i < N; i++)
 				r[i] = B[i] - Ax[i];
 
@@ -77,7 +62,7 @@ namespace SlaeSolver
 			Backward(LU, z, r);
 
 			// Calculate p0
-			Matrix.Multiply(z, p);
+			matrix.Multiply(z, p);
 			Forward(LU, p, p);
 
 			Difference = Utilities.DotProduct(r, r);
@@ -97,7 +82,7 @@ namespace SlaeSolver
 
 				// Calculate beta
 				Backward(LU, Ax, r);
-				Matrix.Multiply(Ax, temp);
+				matrix.Multiply(Ax, temp);
 				Forward(LU, Ax, temp);
 				double b = -Utilities.DotProduct(p, Ax) / dotP;
 
@@ -113,47 +98,49 @@ namespace SlaeSolver
 				Difference = Utilities.DotProduct(r, r);
 
 				IterCount++;
+
+				Console.WriteLine(Difference);
 			}
 
 			return x;
 		}
 
-		void LUFactorization()
+		void LUFactorization(IMatrix matrix)
 		{
 			RawMatrix LU = new RawMatrix();
-			LU.N = Matrix.N;
+			LU.N = matrix.N;
 			LU.IA = new int[LU.N + 1];
 
-			for (int i = 0; i < Matrix.N + 1; i++)
-				LU.IA[i] = Matrix.IA[i];
+			for (int i = 0; i < matrix.N + 1; i++)
+				LU.IA[i] = matrix.IA[i];
 
 			LU.AL = new double[LU.IA[LU.N]];
 			LU.AU = new double[LU.IA[LU.N]];
 			LU.JA = new int[LU.IA[LU.N]];
 			LU.DI = new double[LU.N];
 
-			for (int i = 0; i < Matrix.IA[Matrix.N]; i++)
-				LU.JA[i] = Matrix.JA[i];
+			for (int i = 0; i < matrix.IA[matrix.N]; i++)
+				LU.JA[i] = matrix.JA[i];
 
-			for (int i = 0; i < Matrix.N; i++)
+			for (int i = 0; i < matrix.N; i++)
 			{
 				double sumD = 0;
-				int i0 = Matrix.IA[i], i1 = Matrix.IA[i + 1];
+				int i0 = matrix.IA[i], i1 = matrix.IA[i + 1];
 
 				for (int k = i0; k < i1; k++)
 				{
 					double sumL = 0, sumU = 0;
-					int j = Matrix.JA[k];
+					int j = matrix.JA[k];
 
 					// Calculate L[i][j], U[j][i]
-					int j0 = Matrix.IA[j], j1 = Matrix.IA[j + 1];
+					int j0 = matrix.IA[j], j1 = matrix.IA[j + 1];
 
 					int kl = i0, ku = j0;
 
 					for (; kl < i1 && ku < j1;)
 					{
-						int j_kl = Matrix.JA[kl];
-						int j_ku = Matrix.JA[ku];
+						int j_kl = matrix.JA[kl];
+						int j_ku = matrix.JA[ku];
 
 						if (j_kl == j_ku)
 						{
@@ -168,8 +155,8 @@ namespace SlaeSolver
 							kl++;
 					}
 
-					LU.AL[k] = Matrix.AL[k] - sumL;
-					LU.AU[k] = Matrix.AU[k] - sumU;
+					LU.AL[k] = matrix.AL[k] - sumL;
+					LU.AU[k] = matrix.AU[k] - sumU;
 					LU.AU[k] /= LU.DI[j];
 
 					// Calculate sum for DI[i]
@@ -177,10 +164,19 @@ namespace SlaeSolver
 				}
 
 				// Calculate DI[i]
-				LU.DI[i] = Matrix.DI[i] - sumD;
+				LU.DI[i] = matrix.DI[i] - sumD;
 			}
 
 			this.LU = LU;
+		}
+
+		void InitAuxVectors(int N)
+		{
+			Ax = new double[N];
+			r = new double[N];
+			z = new double[N];
+			p = new double[N];
+			temp = new double[N];
 		}
 
 		void Forward(RawMatrix A, double[] x, double[] b)
@@ -231,76 +227,76 @@ namespace SlaeSolver
 		}
 	}
 
-	public class CGM : ISolver
-	{
-		public IMatrix Matrix { get; set; } = null;
-		public double[] B { get; set; } = null;
+	//public class CGM : ISolver
+	//{
+	//	public IMatrix Matrix { get; set; } = null;
+	//	public double[] B { get; set; } = null;
 
-		public int MaxIterCount { get; set; } = 200000;
-		public int IterCount { get; set; } = 0;
+	//	public int MaxIterCount { get; set; } = 200000;
+	//	public int IterCount { get; set; } = 0;
 
-		public double Eps { get; set; } = 1.0e-15;
-		public double Difference { get; set; } = 0.0;
+	//	public double Eps { get; set; } = 1.0e-15;
+	//	public double Difference { get; set; } = 0.0;
 
-		double[] Ax { get; set; } = null;
-		double[] r { get; set; } = null;
-		double[] z { get; set; } = null;
-		int N { get; set; } = 0;
+	//	double[] Ax { get; set; } = null;
+	//	double[] r { get; set; } = null;
+	//	double[] z { get; set; } = null;
+	//	int N { get; set; } = 0;
 
-		public CGM(IMatrix matrix, double[] b)
-		{
-			N = matrix.N;
-			Matrix = matrix;
-			B = b;
+	//	public CGM(IMatrix matrix, double[] b)
+	//	{
+	//		N = matrix.N;
+	//		Matrix = matrix;
+	//		B = b;
 
-			Ax = new double[N];
-			r = new double[N];
-			z = new double[N];
-		}
+	//		Ax = new double[N];
+	//		r = new double[N];
+	//		z = new double[N];
+	//	}
 
-		public double[] Solve()
-		{
-			double[] x = new double[N];
+	//	public double[] Solve()
+	//	{
+	//		double[] x = new double[N];
 
-			// Calculate r0, z0
-			Matrix.Multiply(x, Ax);
-			for (int i = 0; i < N; i++)
-			{
-				r[i] = B[i] - Ax[i];
-				z[i] = r[i];
-			}
+	//		// Calculate r0, z0
+	//		Matrix.Multiply(x, Ax);
+	//		for (int i = 0; i < N; i++)
+	//		{
+	//			r[i] = B[i] - Ax[i];
+	//			z[i] = r[i];
+	//		}
 
-			double dotF = Utilities.DotProduct(B, B);
-			double dotR0 = Utilities.DotProduct(r, r);
-			Difference = dotR0 / dotF;
+	//		double dotF = Utilities.DotProduct(B, B);
+	//		double dotR0 = Utilities.DotProduct(r, r);
+	//		Difference = dotR0 / dotF;
 
-			while(IterCount < MaxIterCount && Difference >= Eps * Eps)
-			{
-				// Calculate alpha
-				Matrix.Multiply(z, Ax);
-				double a = dotR0 / Utilities.DotProduct(Ax, z);
+	//		while(IterCount < MaxIterCount && Difference >= Eps * Eps)
+	//		{
+	//			// Calculate alpha
+	//			Matrix.Multiply(z, Ax);
+	//			double a = dotR0 / Utilities.DotProduct(Ax, z);
 
-				// Calculate xk, rk
-				for (int i = 0; i < N; i++)
-				{
-					x[i] += a * z[i];
-					r[i] -= a * Ax[i];
-				}
+	//			// Calculate xk, rk
+	//			for (int i = 0; i < N; i++)
+	//			{
+	//				x[i] += a * z[i];
+	//				r[i] -= a * Ax[i];
+	//			}
 
-				// Calculate beta
-				double dotR1 = Utilities.DotProduct(r, r);
-				double b = dotR1 / dotR0;
+	//			// Calculate beta
+	//			double dotR1 = Utilities.DotProduct(r, r);
+	//			double b = dotR1 / dotR0;
 
-				// Calculate zk
-				for (int i = 0; i < N; i++)
-					z[i] = r[i] + b * z[i];
+	//			// Calculate zk
+	//			for (int i = 0; i < N; i++)
+	//				z[i] = r[i] + b * z[i];
 
-				// Calculate difference
-				Difference = dotR1 / dotF;
-				dotR0 = dotR1;
-			}
+	//			// Calculate difference
+	//			Difference = dotR1 / dotF;
+	//			dotR0 = dotR1;
+	//		}
 
-			return x;
-		}
-	}
+	//		return x;
+	//	}
+	//}
 }

@@ -2,6 +2,7 @@
 using SlaeSolver;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 
 namespace FEM
 {
@@ -20,6 +21,7 @@ namespace FEM
 	public class FEMrz
 	{
 		public ProblemInfo Info { get; set; }
+		public ISolver Solver { get; set; } = null;
 
 		int NodeCount { get; set; } = 0;
 		MeshBuilder mb { get; set; } = null;
@@ -31,6 +33,17 @@ namespace FEM
 		public FEMrz(ProblemInfo info)
 		{
 			Info = info;
+
+			switch (Info.SolverType)
+			{
+				case SolverTypes.LOSLU:
+					Solver = new LOSLU();
+					break;
+
+				default:
+					Solver = new LOSLU();
+					break;
+			}
 		}
 
 		public void Solve()
@@ -56,27 +69,33 @@ namespace FEM
 			sb.Build(A, B);
 			sb.AddBoundary(A, B, Info.FB);
 
-			ISolver solver;
-			switch (Info.SolverType)
-			{
-				case SolverTypes.CGM:
-					solver = new CGM(A, B);
-					break;
-
-				case SolverTypes.LOSLU:
-					solver = new LOSLU(A, B);
-					break;
-
-				default:
-					solver = new LOSLU(A, B);
-					break;
-			}
-
-			Weights = solver.Solve();
+			Weights = Solver.Solve(A, B);
 		}
 
-		public double U(double r, double z)
+		public double U(Point p)
 		{
+			FiniteElement element = null;
+
+			foreach (FiniteElement e in Info.Mesh)
+			{
+				if (Utilities.PointInsideTriangle(Info.Points[e.V1], Info.Points[e.V2], Info.Points[e.V3], p))
+				{
+					element = e;
+					break;
+				}
+			}
+
+			if (element != null)
+			{
+				(double L1, double L2, double L3) = Utilities.GetL(Info.Points[element.V1], Info.Points[element.V2], Info.Points[element.V3], p);
+
+				double result = 0.0;
+				for (int i = 0; i < FEMInfo.BasisSize; i++)
+					result += element.Vertices[i] * FEMInfo.LBasis[i](L1, L2, L3);
+
+				return result;				
+			}
+
 			return 0.0;
 		}
 	}
@@ -98,6 +117,7 @@ namespace FEM
 	public class FEMrzDelta
 	{
 		public ProblemInfoDelta Info { get; set; }
+		public ISolver Solver { get; set; } = null;
 
 		int NodeCount { get; set; } = 0;
 		MeshBuilder mb { get; set; } = null;
@@ -109,6 +129,16 @@ namespace FEM
 		public FEMrzDelta(ProblemInfoDelta info)
 		{
 			Info = info;
+			switch (Info.SolverType)
+			{
+				case SolverTypes.LOSLU:
+					Solver = new LOSLU();
+					break;
+
+				default:
+					Solver = new LOSLU();
+					break;
+			}
 		}
 
 		public void Solve()
@@ -136,27 +166,34 @@ namespace FEM
 			sb.Build(A, B);
 			sb.AddBoundary(A, B, Info.FB);
 
-			ISolver solver;
-			switch (Info.SolverType)
-			{
-				case SolverTypes.CGM:
-					solver = new CGM(A, B);
-					break;
-
-				case SolverTypes.LOSLU:
-					solver = new LOSLU(A, B);
-					break;
-
-				default:
-					solver = new LOSLU(A, B);
-					break;
-			}
-
-			Weights = solver.Solve();
+			Console.WriteLine("Start Solving SLAE");
+			Weights = Solver.Solve(A, B);
 		}
 
-		public double U(double r, double z)
+		public double U(Point p)
 		{
+			FiniteElement element = null;
+
+			foreach (FiniteElement e in Info.Mesh)
+			{
+				if (Utilities.PointInsideTriangle(Info.Points[e.V1], Info.Points[e.V2], Info.Points[e.V3], p))
+				{
+					element = e;
+					break;
+				}
+			}
+
+			if (element != null)
+			{
+				(double L1, double L2, double L3) = Utilities.GetL(Info.Points[element.V1], Info.Points[element.V2], Info.Points[element.V3], p);
+
+				double result = 0.0;
+				for (int i = 0; i < FEMInfo.BasisSize; i++)
+					result += Weights[element.Vertices[i]] * FEMInfo.LBasis[i](L1, L2, L3);
+
+				return result;
+			}
+
 			return 0.0;
 		}
 	}

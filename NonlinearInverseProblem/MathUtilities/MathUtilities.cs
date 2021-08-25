@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace MathUtilities
 {
@@ -66,24 +65,6 @@ namespace MathUtilities
 			return alpha;
 		}
 
-		public static Point[] TriangleCubicPoints(Point a, Point b, Point c)
-		{
-			Point[] points = new Point[10];
-
-			points[0] = a;
-			points[1] = b;
-			points[2] = c;
-			points[3] = (((b / 2.0) + a) * 2.0 / 3.0);
-			points[4] = (((b * 2.0) + a) / 3.0);
-			points[5] = (((c / 2.0) + a) * 2.0 / 3.0);
-			points[6] = (((c * 2.0) + a) / 3.0);
-			points[7] = (((c / 2.0) + b) * 2.0 / 3.0);
-			points[8] = (((c * 2.0) + b) / 3.0);
-			points[9] = ((a + b + c) / 3.0);
-
-			return points;
-		}
-
 		public static double NewtonCotes(double a, double b, Func<double, double> f)
 		{
 			double h = (b - a) / 1000;
@@ -148,6 +129,52 @@ namespace MathUtilities
 			}
 
 			return x;
+		}
+
+		public static Point[] TriangleCubicPoints(Point a, Point b, Point c)
+		{
+			Point[] points = new Point[10];
+
+			points[0] = a;
+			points[1] = b;
+			points[2] = c;
+			points[3] = (((b / 2.0) + a) * 2.0 / 3.0);
+			points[4] = (((b * 2.0) + a) / 3.0);
+			points[5] = (((c / 2.0) + a) * 2.0 / 3.0);
+			points[6] = (((c * 2.0) + a) / 3.0);
+			points[7] = (((c / 2.0) + b) * 2.0 / 3.0);
+			points[8] = (((c * 2.0) + b) / 3.0);
+			points[9] = ((a + b + c) / 3.0);
+
+			return points;
+		}
+
+		public static bool PointInsideTriangle(Point t1, Point t2, Point t3, Point p)
+		{
+			double crossProduct1 = (t1.R - p.R) * (t2.Z - t1.Z) - (t2.R - t1.R) * (t1.Z - p.Z);
+			double crossProduct2 = (t2.R - p.R) * (t3.Z - t2.Z) - (t3.R - t2.R) * (t2.Z - p.Z);
+			double crossProduct3 = (t3.R - p.R) * (t1.Z - t3.Z) - (t1.R - t3.R) * (t3.Z - p.Z);
+
+			if (crossProduct1 >= 0.0 && crossProduct2 >= 0.0 && crossProduct3 >= 0.0)
+				return true;
+
+			if (crossProduct1 <= 0.0 && crossProduct1 <= 0.0 && crossProduct3 <= 0.0)
+				return true;
+
+			return false;
+		}
+
+		public static (double, double, double) GetL(Point t1, Point t2, Point t3, Point p)
+		{
+			double D = Math.Abs(Det(t1, t2, t3));
+			double D1 = Math.Abs(Det(p, t2, t3));
+			double D2 = Math.Abs(Det(t1, p, t3));
+			double D3 = Math.Abs(Det(t1, t2, p));
+
+			double L1 = D1 / D;
+			double L2 = D2 / D;
+			double L3 = D3 / D;
+			return (L1, L2, L3);
 		}
 	}
 }
