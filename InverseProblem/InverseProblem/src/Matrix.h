@@ -31,6 +31,15 @@ public:
 
 	Matrix() = default;
 
+	~Matrix()
+	{
+		DI.clear();
+		AL.clear();
+		AU.clear();
+		IA.clear();
+		JA.clear();
+	}
+
 	double& operator()(int i, int j)
 	{
 		if (i >= N || j >= N || i < 0 || j < 0)

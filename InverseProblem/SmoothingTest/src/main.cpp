@@ -117,32 +117,47 @@ void TestWithSmoothingRegularization()
 	double alpha = 1.0e-17;
 	bool badConds = false;
 	int iter = 0;
+
+	ProblemInfo info;
+	info.alpha = 1.0e-17;
+	info.g0 = &init_g;
+	info.realG = &real_g;
+	info.grid = &grid;
+
+	std::vector<double> dp;
+	RegularizedInverseProblem(init_g, real_g, grid, dp, 1.0e-17);
+	// Get new parameters
+	for (int i = 0; i < ElementCount; i++)
+		changed_elements[i].value = init_Element[i].value + dp[i];
+
+	CSV::PrintElements("Result (Without Smoothing).csv", changed_elements, ElementCountX, ElementCountZ);
+
 	do
 	{
+		// Create G matrix
+		Matrix G;
+		CreateGMatrix(gammaInfo, ElementCountX, G);
+		info.G = &G;
+
 		// Calculate delta p
-		std::vector<double> dp;
-		RegularizedInverseProblem(init_g, real_g, grid, dp, alpha);
+		SmoothingRegularizedInverseProblem(info, dp);
 
 		// Get new parameters
 		for (int i = 0; i < ElementCount; i++)
 			changed_elements[i].value = init_Element[i].value + dp[i];
 
 		std::stringstream stream;
-		stream << "Result (" << iter << ").csv";
+		stream << "Result (" << iter++ << ").csv";
 
-		CSV::PrintElementsWithNumbers(stream.str(), changed_elements, ElementCountX, ElementCountZ);
+		CSV::PrintElements(stream.str(), changed_elements, ElementCountX, ElementCountZ);
 
 		// bad smoothing conditions
 		std::set<std::pair<int, int>> badCondsCoords;
 
 		// Check smoothing
-		badConds = CheckSmoothingCondition(changed_elements, badCondsCoords, ElementCountX);
+		badConds = CheckSmoothingCondition(changed_elements, badCondsCoords, ElementCountX, 0.1);
 
-		// Calculate new g
-	//	std::vector<Receiver> new_g;
-		//CreateReceivers(new_g);
-	//	DirectProblem(changed_elements, new_g);
-		
+		ChangeGammas(gammaInfo, badCondsCoords);
 	} while (badConds);
 }
 

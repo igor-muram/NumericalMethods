@@ -139,7 +139,7 @@ struct ProblemInfo
 	std::vector<Receiver>* realG = nullptr;
 	std::vector<Rect>* grid = nullptr;
 	double alpha = 0.0;
-	Matrix G;
+	Matrix* G;
 };
 
 void SmoothingRegularizedInverseProblem(ProblemInfo& info, std::vector<double>& dp)
@@ -170,7 +170,7 @@ void SmoothingRegularizedInverseProblem(ProblemInfo& info, std::vector<double>& 
 
 	for (int i = 0; i < gridSize; i++)
 		for (int j = 0; j < gridSize; j++)
-			A(i, j) = info.G(i, j);
+			A(i, j) += (*info.G)(i, j);
 
 	vector<double> b(gridSize, 0.0);
 
@@ -208,11 +208,11 @@ void CreateGMatrix(std::vector<std::pair<double, int>>& gammaInfo, int ElementCo
 		for (int j = -1; j < 2; j++)
 			for (int k = -1; k < 2; k++)
 			{
-				if (j != 0 && k != 0)
+				if (j != 0 || k != 0)
 				{
 					int index = i + j * ElementCountX + k;
 
-					if (index > 0)
+					if (index > 0 && index < size)
 						sum += gammaInfo[index].first;
 				}
 			}
@@ -226,7 +226,7 @@ void CreateGMatrix(std::vector<std::pair<double, int>>& gammaInfo, int ElementCo
 				G(i, j) = -(gammaInfo[i].first + gammaInfo[j].first);
 }
 
-bool CheckSmoothingCondition(std::vector<Element>& p, std::set<std::pair<int, int>>& badCondsCoords, int ElementCountX)
+bool CheckSmoothingCondition(std::vector<Element>& p, std::set<std::pair<int, int>>& badCondsCoords, int ElementCountX, double threshold)
 {
 	bool badCondsExists = false;
 
@@ -236,7 +236,7 @@ bool CheckSmoothingCondition(std::vector<Element>& p, std::set<std::pair<int, in
 	{
 		double value1 = p[i].value;
 
-		if (abs(value1) > 0.1)
+		if (abs(value1) > threshold)
 		{
 			for (int j = -1; j < 2; j++)
 				for (int k = -1; k < 2; k++)
@@ -249,11 +249,12 @@ bool CheckSmoothingCondition(std::vector<Element>& p, std::set<std::pair<int, in
 						{
 							double value2 = p[near].value;
 
-							if (value1 * value2 > 0 && abs(value2) > 0.1)
+							if (value1 * value2 > 0 && abs(value2) > threshold)
 							{
 								double ratio = value1 / value2;
 								if (ratio > 2.0 || ratio < 0.5)
-									badCondsCoords.insert(std::make_pair(i, near));
+									if (badCondsCoords.find(std::make_pair(near, i)) == badCondsCoords.end())
+										badCondsCoords.insert(std::make_pair(i, near));
 							}
 						}
 					}
@@ -268,21 +269,17 @@ bool CheckSmoothingCondition(std::vector<Element>& p, std::set<std::pair<int, in
 	return badCondsExists;
 }
 
-void ChangeGammas(std::vector<std::pair<double, int>>& gammaInfo, std::set<std::pair<int, int>>& badConds)
+void ChangeGammas(std::vector<std::pair<double, int>>& gammaInfo, std::set<std::pair<int, int>>& badCondsCoords)
 {
-	std::map<int, bool> alreadyChanged;
+	//std::map<int, bool> alreadyChanged;
 
-	for (auto& pair : badConds)
+	for (auto& pair : badCondsCoords)
 	{
 		int i = pair.first;
 		int j = pair.second;
-
-		if (!alreadyChanged[i] && !alreadyChanged[j])
-		{
-			alreadyChanged[i] = alreadyChanged[j] = true;
-			gammaInfo[i].first *= 10.0;
-			gammaInfo[j].first *= 10.0;
-		}
+		
+		gammaInfo[i].first *= 10.0;
+		gammaInfo[j].first *= 10.0;
 	}
 }
 
