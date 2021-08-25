@@ -137,9 +137,9 @@ namespace NonlinearInverseProblem
 			return V;
 		}
 
-		public static double InverseProblem(ProblemInfo info, double eps)
+		public static double InverseProblem(ProblemInfo info, double eps, double dh)
 		{
-			double[] derivatives = FEMDerivative(info, 0.0001, eps);
+			double[] derivatives = FEMDerivative(info, dh, eps);
 
 			double A = 0.0;
 

@@ -1,9 +1,8 @@
 ﻿using MathUtilities;
-using System;
 
 namespace SlaeSolver
 {
-	public enum SolverTypes { CGM, LOSLU }
+	public enum SolverTypes { CGMLU, LOSLU }
 
 	public interface ISolver
 	{

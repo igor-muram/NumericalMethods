@@ -262,24 +262,44 @@ namespace ExampleTest
 				info.sigma2 = 0.1;
 
 				// True parameter
-				double trueP = 200;
+				double trueP = 100;
 				info.h = trueP;
 				Console.WriteLine("Start to solve problem for true parameter");
 				info.TrueV = Problem.DirectProblem(info, eps);
-				Console.WriteLine($"Values for parameter {trueP}: {info.TrueV[0]}, {info.TrueV[1]}, {info.TrueV[2]}");
-				Console.WriteLine();
+
+				Console.Write($"Values for parameter {trueP}: ");
 				stream.Write($"True parameter; {trueP}\n");
-				stream.Write($"True V; {info.TrueV[0]}; {info.TrueV[1]}; {info.TrueV[2]}\n");
+				stream.Write($"True V;");
+
+				for (int k = 0; k < receivers.Count; k++)
+				{
+					Console.Write(info.TrueV[k]);
+					stream.Write($"{info.TrueV[k]};");
+				}
+
+				Console.WriteLine();
+				Console.WriteLine();
+				stream.Write("\n");
 
 				// Initial parameter
-				double initialP = 197;
+				double initialP = 200;
 				info.h = initialP;
 				Console.WriteLine("Start to solve problem for initial parameter");
 				info.V = Problem.DirectProblem(info, eps);
-				Console.WriteLine($"Values for parameter {initialP}: {info.V[0]}, {info.V[1]}, {info.V[2]}");
+
+				Console.Write($"Values for parameter {initialP}: ");
+				stream.Write($"Initial parameter; {initialP}\n");
+				stream.Write($"Initial V;");
+
+				for (int k = 0; k < receivers.Count; k++)
+				{
+					Console.Write(info.V[k]);
+					stream.Write($"{info.V[k]};");
+				}
+
 				Console.WriteLine();
-				stream.Write($"Initial parameter; {initialP}\n"); 
-				stream.Write($"Initial V; {info.V[0]}; {info.V[1]}; {info.V[2]}\n");
+				Console.WriteLine();
+				stream.Write("\n");
 
 
 				// Initial Functional value
@@ -291,25 +311,35 @@ namespace ExampleTest
 				Console.WriteLine();
 
 				stream.Write("\nParameter; V1; V2; V3; F\n");
-				stream.Write($"{info.h}; {info.V[0]}; {info.V[1]}; {info.V[2]}; {F}\n");
+				stream.Write($"{info.h};");
+				for (int k = 0; k < receivers.Count; k++)
+					stream.Write($"{info.V[k]};");
+				stream.Write($"{F}\n");
 
 				int i = 0;
 				while (F > 1.0e-7 && i < 30)
 				{
-					double dh = Problem.InverseProblem(info, eps);
+					double dh = Problem.InverseProblem(info, eps, 10);
 					info.h += dh;
 
 					Console.WriteLine($"New h - {info.h}, New functional value - {F}");
 					Console.WriteLine();
 					info.V = Problem.DirectProblem(info, eps);
 					F = Problem.Functional(info.V, info.TrueV);
-
-					stream.Write($"{info.h}; {info.V[0]}; {info.V[1]}; {info.V[2]}; {F}\n");
 					i++;
+
+					stream.Write($"{info.h};");
+					for (int k = 0; k < receivers.Count; k++)
+						stream.Write($"{info.V[k]};");
+					stream.Write($"{F}\n");
 				}
 
 				Console.WriteLine($"Result h - {info.h}, Result functional value - {F}");
-				stream.Write($"{info.h}; {info.V[0]}; {info.V[1]}; {info.V[2]}; {F}\n");
+
+				stream.Write($"{info.h};");
+				for (int k = 0; k < receivers.Count; k++)
+					stream.Write($"{info.V[k]};");
+				stream.Write($"{F}\n");
 			}
 		}
 

@@ -1,7 +1,7 @@
-﻿using MathUtilities;
-using SlaeSolver;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using MathUtilities;
+using SlaeSolver;
 
 namespace FEM
 {
