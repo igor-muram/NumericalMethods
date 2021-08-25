@@ -51,4 +51,19 @@ namespace CSV
 		}
 		out.close();
 	}
+
+	void PrintElementsWithNumbers(const std::string& filename, std::vector<Element>& elements, int ElementsCountX, int ElementsCountZ)
+	{
+		std::ofstream out(filename, std::ios::out);
+
+		for (int i = 0; i < ElementsCountZ; i++)
+		{
+			for (int j = 0; j < ElementsCountX; j++)
+			{
+				out << elements[i * ElementsCountX + j].value << " (" << i * ElementsCountX + j << ")" << ";";
+			}
+			out << std::endl;
+		}
+		out.close();
+	}
 }

@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleTest", "SimpleTest\Si
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExampleTest", "ExampleTest\ExampleTest.vcxproj", "{9E867215-3B57-41CE-8828-6A1B465C4ED5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SmoothingTest", "SmoothingTest\SmoothingTest.vcxproj", "{66F3F3AD-626E-4A44-A8E2-BE7663906936}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{9E867215-3B57-41CE-8828-6A1B465C4ED5}.Release|x64.Build.0 = Release|x64
 		{9E867215-3B57-41CE-8828-6A1B465C4ED5}.Release|x86.ActiveCfg = Release|Win32
 		{9E867215-3B57-41CE-8828-6A1B465C4ED5}.Release|x86.Build.0 = Release|Win32
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Debug|x64.ActiveCfg = Debug|x64
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Debug|x64.Build.0 = Debug|x64
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Debug|x86.ActiveCfg = Debug|Win32
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Debug|x86.Build.0 = Debug|Win32
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Release|x64.ActiveCfg = Release|x64
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Release|x64.Build.0 = Release|x64
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Release|x86.ActiveCfg = Release|Win32
+		{66F3F3AD-626E-4A44-A8E2-BE7663906936}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
