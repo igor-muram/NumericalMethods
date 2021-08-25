@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace FEM
 {
-	public enum ConditionType { First, SecondNull }
+	public enum ConditionType { First, SecondNull, Second }
 
 	public class Edge
 	{
@@ -15,6 +15,11 @@ namespace FEM
 	}
 
 	public class FirstBoundary
+	{
+		public List<Edge> Edges { get; set; } = new List<Edge>();
+	}
+
+	public class SecondBoundary
 	{
 		public List<Edge> Edges { get; set; } = new List<Edge>();
 	}

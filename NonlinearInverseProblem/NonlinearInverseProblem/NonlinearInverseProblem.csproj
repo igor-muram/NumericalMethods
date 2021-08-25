@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FEM\FEM.csproj" />
     <ProjectReference Include="..\MathUtilities\MathUtilities.csproj" />
     <ProjectReference Include="..\SlaeSolver\SlaeSolver.csproj" />
   </ItemGroup>

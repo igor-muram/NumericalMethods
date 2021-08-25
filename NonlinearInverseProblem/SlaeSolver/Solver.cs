@@ -17,7 +17,7 @@ namespace SlaeSolver
 
 	public class LOSLU : ISolver
 	{
-		public int MaxIterCount { get; set; } = 20000;
+		public int MaxIterCount { get; set; } = 100000;
 		public int IterCount { get; set; } = 0;
 
 		public double Eps { get; set; } = 1.0e-15;
@@ -30,6 +30,7 @@ namespace SlaeSolver
 		double[] z { get; set; } = null;
 		double[] p { get; set; } = null;
 		double[] temp { get; set; } = null;
+		double[] xPrev { get; set; } = null;
 
 		RawMatrix LU { get; set; }
 
@@ -67,7 +68,7 @@ namespace SlaeSolver
 
 			Difference = Utilities.DotProduct(r, r);
 
-			while(IterCount < MaxIterCount && Difference >= Eps)
+			while(IterCount < MaxIterCount && Difference >= Eps && Utilities.Error(x, xPrev) >= 1.0e-10)
 			{
 				// Calculate alpha
 				double dotP = Utilities.DotProduct(p, p);
@@ -76,6 +77,7 @@ namespace SlaeSolver
 				// Calculate xk, rk
 				for (int i = 0; i < N; i++)
 				{
+					xPrev[i] = x[i];
 					x[i] += a * z[i];
 					r[i] -= a * p[i];
 				}
@@ -98,8 +100,6 @@ namespace SlaeSolver
 				Difference = Utilities.DotProduct(r, r);
 
 				IterCount++;
-
-				Console.WriteLine(Difference);
 			}
 
 			return x;
@@ -177,6 +177,10 @@ namespace SlaeSolver
 			z = new double[N];
 			p = new double[N];
 			temp = new double[N];
+			xPrev = new double[N];
+
+			for (int i = 0; i < N; i++)
+				xPrev[i] = 1.0;
 		}
 
 		void Forward(RawMatrix A, double[] x, double[] b)

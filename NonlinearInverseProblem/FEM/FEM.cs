@@ -2,16 +2,16 @@
 using SlaeSolver;
 using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
 
 namespace FEM
 {
-	public struct ProblemInfo
+	public struct FEMProblemInfo
 	{
 		public Point[] Points { get; set; }
 		public Dictionary<int, Material> Materials { get; set; }
 		public Mesh Mesh { get; set; }
 		public FirstBoundary FB { get; set; }
+		public SecondBoundary SB { get; set; }
 
 		public Func<double, double, double> F { get; set; }
 
@@ -20,7 +20,7 @@ namespace FEM
 
 	public class FEMrz
 	{
-		public ProblemInfo Info { get; set; }
+		public FEMProblemInfo Info { get; set; }
 		public ISolver Solver { get; set; } = null;
 
 		int NodeCount { get; set; } = 0;
@@ -30,7 +30,7 @@ namespace FEM
 
 		public double[] Weights { get; set; } = null;
 
-		public FEMrz(ProblemInfo info)
+		public FEMrz(FEMProblemInfo info)
 		{
 			Info = info;
 
@@ -52,6 +52,7 @@ namespace FEM
 			NodeCount = mb.Build(Info.Mesh);
 
 			mb.BuildBoundary(Info.FB);
+			mb.BuildBoundary(Info.SB);
 
 			pb = new PortraitBuilder(NodeCount, Info.Mesh);
 			MatrixPortrait mp = new MatrixPortrait();
@@ -68,6 +69,7 @@ namespace FEM
 			sb = new SLAEBuilder(slaeinfo);
 			sb.Build(A, B);
 			sb.AddBoundary(A, B, Info.FB);
+			sb.AddBoundary(A, B, Info.SB);
 
 			Weights = Solver.Solve(A, B);
 		}
@@ -91,7 +93,7 @@ namespace FEM
 
 				double result = 0.0;
 				for (int i = 0; i < FEMInfo.BasisSize; i++)
-					result += element.Vertices[i] * FEMInfo.LBasis[i](L1, L2, L3);
+					result += Weights[element.Vertices[i]] * FEMInfo.LBasis[i](L1, L2, L3);
 
 				return result;				
 			}
@@ -100,7 +102,7 @@ namespace FEM
 		}
 	}
 
-	public struct ProblemInfoDelta
+	public struct FEMProblemInfoDelta
 	{
 		public Point[] Points { get; set; }
 		public Dictionary<int, Material> Materials { get; set; }
@@ -116,7 +118,7 @@ namespace FEM
 
 	public class FEMrzDelta
 	{
-		public ProblemInfoDelta Info { get; set; }
+		public FEMProblemInfoDelta Info { get; set; }
 		public ISolver Solver { get; set; } = null;
 
 		int NodeCount { get; set; } = 0;
@@ -126,7 +128,7 @@ namespace FEM
 
 		public double[] Weights { get; set; } = null;
 
-		public FEMrzDelta(ProblemInfoDelta info)
+		public FEMrzDelta(FEMProblemInfoDelta info)
 		{
 			Info = info;
 			switch (Info.SolverType)

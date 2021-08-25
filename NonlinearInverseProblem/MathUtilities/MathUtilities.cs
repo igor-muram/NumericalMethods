@@ -9,6 +9,8 @@ namespace MathUtilities
 			return (func(point + delta) - func(point)) / delta;
 		}
 
+		public static double Distance(Point a, Point b) => Math.Sqrt((a.R - b.R) * (a.R - b.R) + (a.Z - b.Z) * (a.Z - b.Z));
+
 		public static double DotProduct(double[] a, double[] b)
 		{
 			if (a.Length != b.Length)
@@ -175,6 +177,17 @@ namespace MathUtilities
 			double L2 = D2 / D;
 			double L3 = D3 / D;
 			return (L1, L2, L3);
+		}
+
+		public static double Error(double[] a, double[] b)
+		{
+			double result = 0.0;
+			int N = a.Length;
+
+			for (int i = 0; i < N; i++)
+				result += (a[i] - b[i]) * (a[i] - b[i]);
+
+			return Math.Sqrt(result);
 		}
 	}
 }

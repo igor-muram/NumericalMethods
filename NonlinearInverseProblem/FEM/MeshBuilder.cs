@@ -74,5 +74,19 @@ namespace FEM
 				edge.V3 = EdgeMatrix[a][b] + (f ? 0 : 1);
 			}
 		}
+
+		public void BuildBoundary(SecondBoundary boundary)
+		{
+			foreach (Edge edge in boundary.Edges)
+			{
+				int a = edge.V1;
+				int b = edge.V4;
+				bool f = a > b;
+				if (f) (a, b) = (b, a);
+
+				edge.V2 = EdgeMatrix[a][b] + (f ? 1 : 0);
+				edge.V3 = EdgeMatrix[a][b] + (f ? 0 : 1);
+			}
+		}
 	}
 }

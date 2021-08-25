@@ -87,6 +87,33 @@ namespace FEM
 			}
 		}
 
+		public void AddBoundary(IMatrix A, double[] b, SecondBoundary boundary)
+		{
+			foreach (Edge edge in boundary.Edges)
+			{
+				int[] v = new int[] { edge.V1, edge.V2, edge.V3, edge.V4 };
+
+				Func<double, double, double> theta = edge.Function;
+				double h = Utilities.Distance(Info.Points[edge.V1], Info.Points[edge.V4]);
+
+				Func<double, double>[] basis = new Func<double, double>[4]
+				{
+					(double x) => 0.5 * (1 - x) * (3 * (1 - x) - 1) * (3 * (1 - x) - 2),
+					(double x) => 4.5 * (1 - x) * x * (3 * (1 - x) - 1),
+					(double x) => 4.5 * (1 - x) * x * (3 * x - 1),
+					(double x) => 0.5 * x * (3 * x - 1) * (3 * x - 2)
+				};
+
+				double r0 = Info.Points[edge.V1].R;
+				double r1 = Info.Points[edge.V4].R;
+				double z0 = Info.Points[edge.V1].Z;
+				double z1 = Info.Points[edge.V4].Z;
+
+					for (int i = 0; i < 4; i++)
+						b[v[i]] += h * Utilities.NewtonCotes(0.0, 1.0, (double t) => theta(r0 + t * (r1 - r0), z0 + t * (z1 - z0)) * basis[i](t) * (r0 + t * (r1 - r0)));
+			}
+		}
+
 		void BuildPatterns()
 		{
 			gPattern = new List<FEMInfo.LocalCompG>[FEMInfo.BasisSize, FEMInfo.BasisSize];
